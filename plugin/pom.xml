@@ -46,6 +46,10 @@
             <artifactId>entity-provider</artifactId>
         </dependency>
         <dependency>
+            <groupId>dev.ikm.maven</groupId>
+            <artifactId>tinkar-maven-toolkit</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>

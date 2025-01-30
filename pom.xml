@@ -18,8 +18,21 @@
     <modules>
         <module>tinkar-starter-data</module>
         <module>plugin</module>
-        <module>tinkar-example-data</module>
     </modules>
+
+    <properties>
+        <tinkar-maven-artifacts.version>1.12.0</tinkar-maven-artifacts.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.ikm.maven</groupId>
+                <artifactId>tinkar-maven-toolkit</artifactId>
+                <version>${tinkar-maven-artifacts.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <url>http://www.ikm.dev</url>
 

@@ -13,51 +13,295 @@
 
     <artifactId>tinkar-starter-data</artifactId>
     <packaging>pom</packaging>
-    <name>tinkar-starter-data</name>
+    <name>Tinkar Starter Data</name>
 
     <url>http://maven.apache.org</url>
+
+    <properties>
+        <reasoner-type>ElkOwlReasoner</reasoner-type>
+        <reinfer-all-hierarchy>true</reinfer-all-hierarchy>
+        <export-artifact-path>${project.build.directory}/tinkar-export.zip</export-artifact-path>
+    </properties>
+
+    <profiles>
+        <!-- Profile to generate unreasoned tinkar starter data -->
+        <profile>
+            <id>generate-unreasoned-starter-data</id>
+            <build>
+                <plugins>
+                    <!-- Load starter data into data store -->
+                    <plugin>
+                        <groupId>dev.ikm.tinkar</groupId>
+                        <artifactId>tinkar-data-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-data</id>
+                                <goals>
+                                    <goal>generate-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Export starter data as a protocol buffers zip file -->
+                    <plugin>
+                        <groupId>dev.ikm.maven</groupId>
+                        <artifactId>tinkar-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>export-data</id>
+                                <goals>
+                                    <goal>export-tinkar-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Attach protocol buffers zip as maven artifact -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${export-artifact-path}</file>
+                                            <type>zip</type>
+                                            <classifier>unreasoned-pb</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Profile to generate reasoned tinkar starter data -->
+        <profile>
+            <id>generate-reasoned-starter-data</id>
+            <build>
+                <plugins>
+                    <!-- Load starter data into data store -->
+                    <plugin>
+                        <groupId>dev.ikm.tinkar</groupId>
+                        <artifactId>tinkar-data-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-data</id>
+                                <goals>
+                                    <goal>generate-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>dev.ikm.maven</groupId>
+                        <artifactId>tinkar-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Run full reasoner starter data -->
+                            <execution>
+                                <id>full-reasoner</id>
+                                <goals>
+                                    <goal>run-full-reasoner</goal>
+                                </goals>
+                                <configuration>
+                                    <reinferAllHierarchy>true</reinferAllHierarchy>
+                                </configuration>
+                            </execution>
+                            <!-- Export starter data as a protocol buffers zip file -->
+                            <execution>
+                                <id>export-data</id>
+                                <goals>
+                                    <goal>export-tinkar-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Attach protocol buffers zip as maven artifact -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>${build-helper-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${export-artifact-path}</file>
+                                            <type>zip</type>
+                                            <classifier>reasoned-pb</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Profile to generate unreasoned tinkar starter data with example semantics -->
+        <profile>
+            <id>generate-unreasoned-example-starter-data</id>
+            <build>
+                <plugins>
+                    <!-- Load starter data into data store -->
+                    <plugin>
+                        <groupId>dev.ikm.tinkar</groupId>
+                        <artifactId>tinkar-data-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-data</id>
+                                <goals>
+                                    <goal>generate-data</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>generate-example-data</id>
+                                <goals>
+                                    <goal>generate-example-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>dev.ikm.maven</groupId>
+                        <artifactId>tinkar-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Export starter data as a protocol buffers zip file -->
+                            <execution>
+                                <id>export-data</id>
+                                <goals>
+                                    <goal>export-tinkar-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Attach protocol buffers zip as maven artifact -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>${build-helper-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${export-artifact-path}</file>
+                                            <type>zip</type>
+                                            <classifier>unreasoned-example-pb</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Profile to generate reasoned tinkar starter data with example semantics -->
+        <profile>
+            <id>generate-reasoned-example-starter-data</id>
+            <build>
+                <plugins>
+                    <!-- Load starter data into data store -->
+                    <plugin>
+                        <groupId>dev.ikm.tinkar</groupId>
+                        <artifactId>tinkar-data-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-data</id>
+                                <goals>
+                                    <goal>generate-data</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>generate-example-data</id>
+                                <goals>
+                                    <goal>generate-example-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>dev.ikm.maven</groupId>
+                        <artifactId>tinkar-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Run full reasoner starter data -->
+                            <execution>
+                                <id>full-reasoner</id>
+                                <goals>
+                                    <goal>run-full-reasoner</goal>
+                                </goals>
+                                <configuration>
+                                    <reinferAllHierarchy>true</reinferAllHierarchy>
+                                </configuration>
+                            </execution>
+                            <!-- Export starter data as a protocol buffers zip file -->
+                            <execution>
+                                <id>export-data</id>
+                                <goals>
+                                    <goal>export-tinkar-data</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Attach protocol buffers zip as maven artifact -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>${build-helper-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${export-artifact-path}</file>
+                                            <type>zip</type>
+                                            <classifier>reasoned-example-pb</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <pluginManagement>
         <plugins>
             <plugin>
                 <groupId>dev.ikm.tinkar</groupId>
                 <artifactId>tinkar-data-maven-plugin</artifactId>
-                <version>1.6.0-SNAPSHOT</version>
-                <executions>
-                    <execution>
-                        <id>load-data</id>
-                        <goals>
-                            <goal>generate-data</goal>
-                        </goals>
-                        <configuration>
-                            <dataStore>${project.build.directory}/tinkar-starter-data</dataStore>
-                            <exportFile>${project.build.directory}/tinkar-export-starter-data-pb.zip</exportFile>
-                        </configuration>
-                    </execution>
-                </executions>
+                <version>${project.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>dev.ikm.maven</groupId>
+                <artifactId>tinkar-maven-plugin</artifactId>
+                <version>${tinkar-maven-artifacts.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>${build-helper-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>${project.build.directory}/tinkar-export-starter-data-pb.zip</file>
-                                    <type>zip</type>
-                                    <classifier>tinkar-export-pb</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
         </pluginManagement>

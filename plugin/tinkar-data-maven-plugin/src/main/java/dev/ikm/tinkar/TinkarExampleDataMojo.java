@@ -1,75 +1,35 @@
 package dev.ikm.tinkar;
 
+import dev.ikm.maven.toolkit.SimpleTinkarMojo;
 import dev.ikm.tinkar.common.id.IntIds;
 import dev.ikm.tinkar.common.id.PublicIds;
-import dev.ikm.tinkar.common.service.CachingService;
-import dev.ikm.tinkar.common.service.PrimitiveData;
-import dev.ikm.tinkar.common.service.ServiceKeys;
-import dev.ikm.tinkar.common.service.ServiceProperties;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
 import dev.ikm.tinkar.composer.assembler.PatternAssembler;
 import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
-import dev.ikm.tinkar.composer.template.Definition;
-import dev.ikm.tinkar.composer.template.FullyQualifiedName;
-import dev.ikm.tinkar.composer.template.Identifier;
-import dev.ikm.tinkar.composer.template.StatedAxiom;
-import dev.ikm.tinkar.composer.template.StatedNavigation;
-import dev.ikm.tinkar.composer.template.Synonym;
-import dev.ikm.tinkar.composer.template.USDialect;
+import dev.ikm.tinkar.composer.template.*;
 import dev.ikm.tinkar.entity.EntityService;
-import dev.ikm.tinkar.entity.export.ExportEntitiesController;
 import dev.ikm.tinkar.terms.EntityProxy;
+import dev.ikm.tinkar.terms.EntityProxy.Concept;
 import dev.ikm.tinkar.terms.State;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.collections.api.factory.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
-import static dev.ikm.tinkar.terms.TinkarTerm.BOOLEAN_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_ID_LIST_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_ID_SET_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE;
-import static dev.ikm.tinkar.terms.TinkarTerm.DEVELOPMENT_MODULE;
-import static dev.ikm.tinkar.terms.TinkarTerm.DEVELOPMENT_PATH;
-import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
-import static dev.ikm.tinkar.terms.TinkarTerm.FLOAT_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.INTEGER_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.PREFERRED;
-import static dev.ikm.tinkar.terms.TinkarTerm.STRING;
-import static dev.ikm.tinkar.terms.TinkarTerm.TINKAR_MODEL_CONCEPT;
-import static dev.ikm.tinkar.terms.TinkarTerm.UNIVERSALLY_UNIQUE_IDENTIFIER;
-import static dev.ikm.tinkar.terms.TinkarTerm.USER;
+import static dev.ikm.tinkar.terms.TinkarTerm.*;
 
-public class TinkarExampleData {
-    private static final Logger LOG = LoggerFactory.getLogger(TinkarExampleData.class.getSimpleName());
-
-    private final File exportFile;
-    private final File datastore;
+@Mojo(name = "generate-example-data", requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM, defaultPhase = LifecyclePhase.COMPILE)
+public class TinkarExampleDataMojo extends SimpleTinkarMojo {
 
     private Session session;
-    private EntityProxy.Concept SAMPLE_TINKAR_DATA;
+    private Concept SAMPLE_TINKAR_DATA;
 
-    public TinkarExampleData(String[] args) {
-        datastore = new File(args[0]);
-        exportFile = new File(args[1]);
-    }
-
-    private void init() {
-        LOG.info("Starting database");
-        LOG.info("Loading data from {}", datastore.getAbsolutePath());
-        CachingService.clearAll();
-        ServiceProperties.set(ServiceKeys.DATA_STORE_ROOT, datastore);
-        PrimitiveData.selectControllerByName("Open SpinedArrayStore");
-        PrimitiveData.start();
-    }
-
-    public void transform() {
+    @Override
+    public void run() throws Exception {
         EntityService.get().beginLoadPhase();
         try {
             Composer composer = new Composer("Tinkar Example Data Composer");
@@ -80,7 +40,13 @@ public class TinkarExampleData {
                     DEVELOPMENT_MODULE,
                     DEVELOPMENT_PATH);
 
-            createData();
+            SAMPLE_TINKAR_DATA = createConcept(
+                    "Tinkar Sample Data",
+                    "67af3d9d-2d32-4036-9861-c052f3174134",
+                    TINKAR_MODEL_CONCEPT);
+
+            createPatternOne();
+            createPatternTwo();
 
             composer.commitSession(session);
         } finally {
@@ -88,20 +54,13 @@ public class TinkarExampleData {
         }
     }
 
-    private void createData() {
-        SAMPLE_TINKAR_DATA = createConcept("Tinkar Sample Data", "67af3d9d-2d32-4036-9861-c052f3174134", TINKAR_MODEL_CONCEPT);
-
-        createPatternOne();
-        createPatternTwo();
-    }
-
     private void createPatternOne() {
         EntityProxy.Pattern EXAMPLE_PATTERN_ONE = EntityProxy.Pattern.make("Tinkar Semantic Test Pattern 1", UUID.fromString("6604faf6-e914-49ca-a354-126f619f31ca"));
-        EntityProxy.Concept EXAMPLE_MEANING = createConcept("A test pattern for primitive data types", "ad6f4fdd-fee8-45db-a207-111dc4c939a9");
-        EntityProxy.Concept STRING_FIELD_MEANING = createConcept("An example String field", "c39286ba-55ed-4009-b7e1-48519fbd0e0a");
-        EntityProxy.Concept INTEGER_FIELD_MEANING = createConcept("An example Integer field", "38bcb9c6-cdce-4b02-a1bd-d976e3065b8a");
-        EntityProxy.Concept FLOAT_FIELD_MEANING = createConcept("An example Float field", "4276d7a6-2ae7-4ab4-8797-cffad22bf140");
-        EntityProxy.Concept BOOLEAN_FIELD_MEANING = createConcept("An example Boolean field", "87fc11f4-401d-47b2-9d64-82826f09524f");
+        Concept EXAMPLE_MEANING = createConcept("A test pattern for primitive data types", "ad6f4fdd-fee8-45db-a207-111dc4c939a9");
+        Concept STRING_FIELD_MEANING = createConcept("An example String field", "c39286ba-55ed-4009-b7e1-48519fbd0e0a");
+        Concept INTEGER_FIELD_MEANING = createConcept("An example Integer field", "38bcb9c6-cdce-4b02-a1bd-d976e3065b8a");
+        Concept FLOAT_FIELD_MEANING = createConcept("An example Float field", "4276d7a6-2ae7-4ab4-8797-cffad22bf140");
+        Concept BOOLEAN_FIELD_MEANING = createConcept("An example Boolean field", "87fc11f4-401d-47b2-9d64-82826f09524f");
 
         session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(EXAMPLE_PATTERN_ONE)
                         .meaning(EXAMPLE_MEANING)
@@ -135,13 +94,13 @@ public class TinkarExampleData {
                         .language(ENGLISH_LANGUAGE)
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
 
-        EntityProxy.Concept CONCEPT_FOR_SEMANTIC_1 = createConcept("First Semantic for Sample Pattern 1", "ad7e09a2-a492-4293-a68a-eb3018e5f23b");
+        Concept CONCEPT_FOR_SEMANTIC_1 = createConcept("First Semantic for Sample Pattern 1", "ad7e09a2-a492-4293-a68a-eb3018e5f23b");
         session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                 .pattern(EXAMPLE_PATTERN_ONE)
                 .reference(CONCEPT_FOR_SEMANTIC_1)
                 .fieldValues(objects -> objects.addAll(Lists.mutable.of("This is a test String", 1, 0.5f, true))));
 
-        EntityProxy.Concept CONCEPT_FOR_SEMANTIC_2 = createConcept("Second Semantic for Sample Pattern 1", "a25ed810-68bf-4c92-b010-a9492106484e");
+        Concept CONCEPT_FOR_SEMANTIC_2 = createConcept("Second Semantic for Sample Pattern 1", "a25ed810-68bf-4c92-b010-a9492106484e");
         session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                 .pattern(EXAMPLE_PATTERN_ONE)
                 .reference(CONCEPT_FOR_SEMANTIC_2)
@@ -151,10 +110,10 @@ public class TinkarExampleData {
 
     private void createPatternTwo() {
         EntityProxy.Pattern EXAMPLE_PATTERN_TWO = EntityProxy.Pattern.make("Tinkar Semantic Test Pattern 2", UUID.fromString("7222d538-9641-474a-94ce-72c5bf6462b3"));
-        EntityProxy.Concept EXAMPLE_MEANING = createConcept("A test pattern for component data types", "577ca159-5034-4c3b-8817-24a9de0d9b5c");
-        EntityProxy.Concept COMPONENT_FIELD_MEANING = createConcept("An example Component field", "3cd97362-ff6f-4337-b3f9-fb76d2ca4338");
-        EntityProxy.Concept COMPONENT_SET_FIELD_MEANING = createConcept("An example Component Set field", "990e5a92-cdc2-4e23-a68d-1f01345b8759");
-        EntityProxy.Concept COMPONENT_LIST_FIELD_MEANING = createConcept("An example Component List field", "f0847cd3-2034-43f5-b25f-2bd6e923d228");
+        Concept EXAMPLE_MEANING = createConcept("A test pattern for component data types", "577ca159-5034-4c3b-8817-24a9de0d9b5c");
+        Concept COMPONENT_FIELD_MEANING = createConcept("An example Component field", "3cd97362-ff6f-4337-b3f9-fb76d2ca4338");
+        Concept COMPONENT_SET_FIELD_MEANING = createConcept("An example Component Set field", "990e5a92-cdc2-4e23-a68d-1f01345b8759");
+        Concept COMPONENT_LIST_FIELD_MEANING = createConcept("An example Component List field", "f0847cd3-2034-43f5-b25f-2bd6e923d228");
 
         session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(EXAMPLE_PATTERN_TWO)
                         .meaning(EXAMPLE_MEANING)
@@ -184,7 +143,7 @@ public class TinkarExampleData {
                         .language(ENGLISH_LANGUAGE)
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
 
-        EntityProxy.Concept CONCEPT_FOR_SEMANTIC_1 = createConcept("First Semantic for Sample Pattern 2", "016de8cc-b93c-4dab-a1d8-a2cc720f9351");
+        Concept CONCEPT_FOR_SEMANTIC_1 = createConcept("First Semantic for Sample Pattern 2", "016de8cc-b93c-4dab-a1d8-a2cc720f9351");
         session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                 .pattern(EXAMPLE_PATTERN_TWO)
                 .reference(CONCEPT_FOR_SEMANTIC_1)
@@ -206,7 +165,7 @@ public class TinkarExampleData {
                         )
                 )));
 
-        EntityProxy.Concept CONCEPT_FOR_SEMANTIC_2 = createConcept("Second Semantic for Sample Pattern 2", "dde159ca-415e-4947-9174-cae7e8e7202d");
+        Concept CONCEPT_FOR_SEMANTIC_2 = createConcept("Second Semantic for Sample Pattern 2", "dde159ca-415e-4947-9174-cae7e8e7202d");
         session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                 .pattern(EXAMPLE_PATTERN_TWO)
                 .reference(CONCEPT_FOR_SEMANTIC_2)
@@ -229,12 +188,12 @@ public class TinkarExampleData {
                 )));
     }
 
-    private EntityProxy.Concept createConcept(String description, String uuidStr) {
+    private Concept createConcept(String description, String uuidStr) {
         return createConcept(description, uuidStr, SAMPLE_TINKAR_DATA);
     }
 
-    private EntityProxy.Concept createConcept(String description, String uuidStr, EntityProxy.Concept parent) {
-        EntityProxy.Concept concept = EntityProxy.Concept.make(description, UUID.fromString(uuidStr));
+    private Concept createConcept(String description, String uuidStr, Concept parent) {
+        Concept concept = Concept.make(description, UUID.fromString(uuidStr));
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(concept))
                 .attach((FullyQualifiedName fqn) -> fqn
                         .text(concept.description())
@@ -263,29 +222,5 @@ public class TinkarExampleData {
 
     private USDialect usDialect() {
         return new USDialect().acceptability(PREFERRED);
-    }
-
-    private void exportToProtoBuf() {
-        try {
-            new ExportEntitiesController().export(exportFile).get();
-        } catch (ExecutionException | InterruptedException e) {
-            LOG.error("Error while exporting.", e);
-        }
-    }
-
-    private void cleanup() {
-        PrimitiveData.stop();
-    }
-
-    public void execute() {
-        init();
-        transform();
-        exportToProtoBuf();
-        cleanup();
-    }
-
-    public static void main(String[] args) {
-        TinkarExampleData exampleData = new TinkarExampleData(args);
-        exampleData.execute();
     }
 }
