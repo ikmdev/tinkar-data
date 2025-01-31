@@ -7,7 +7,7 @@
         <version>1.6.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>plugin</artifactId>
+    <artifactId>tinkar-data-plugin</artifactId>
     <packaging>pom</packaging>
 
     <name>plugin</name>
