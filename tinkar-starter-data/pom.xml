@@ -125,7 +125,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>${build-helper-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-artifacts</id>
@@ -188,7 +187,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>${build-helper-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-artifacts</id>
@@ -261,7 +259,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>${build-helper-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-artifacts</id>
@@ -286,24 +283,19 @@
     </profiles>
 
     <build>
-        <pluginManagement>
         <plugins>
             <plugin>
                 <groupId>dev.ikm.tinkar</groupId>
                 <artifactId>tinkar-data-maven-plugin</artifactId>
-                <version>${project.version}</version>
             </plugin>
             <plugin>
                 <groupId>dev.ikm.maven</groupId>
                 <artifactId>tinkar-maven-plugin</artifactId>
-                <version>${tinkar-maven-artifacts.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin.version}</version>
             </plugin>
         </plugins>
-        </pluginManagement>
     </build>
 </project>

@@ -22,6 +22,12 @@
 
     <properties>
         <tinkar-maven-artifacts.version>1.12.0</tinkar-maven-artifacts.version>
+        <tinkar-core.version>1.82.0</tinkar-core.version>
+        <tinkar-composer.version>1.6.0</tinkar-composer.version>
+        <eclipse-collections-api.version>11.1.0-r11</eclipse-collections-api.version>
+        <maven-plugin-api.version>3.9.8</maven-plugin-api.version>
+        <maven-plugin-annotations.version>3.15.1</maven-plugin-annotations.version>
+        <maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -30,6 +36,61 @@
                 <groupId>dev.ikm.maven</groupId>
                 <artifactId>tinkar-maven-toolkit</artifactId>
                 <version>${tinkar-maven-artifacts.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.tinkar</groupId>
+                <artifactId>common</artifactId>
+                <version>${tinkar-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.tinkar</groupId>
+                <artifactId>entity</artifactId>
+                <version>${tinkar-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.tinkar</groupId>
+                <artifactId>composer</artifactId>
+                <version>${tinkar-composer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.jpms</groupId>
+                <artifactId>eclipse-collections-api</artifactId>
+                <version>${eclipse-collections-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.tinkar</groupId>
+                <artifactId>data-spinedarray-provider</artifactId>
+                <version>${tinkar-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.tinkar</groupId>
+                <artifactId>executor-provider</artifactId>
+                <version>${tinkar-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.ikm.tinkar</groupId>
+                <artifactId>entity-provider</artifactId>
+                <version>${tinkar-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${maven-plugin-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>${maven-plugin-annotations.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -76,6 +137,29 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>dev.ikm.tinkar</groupId>
+                    <artifactId>tinkar-data-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>dev.ikm.maven</groupId>
+                    <artifactId>tinkar-maven-plugin</artifactId>
+                    <version>${tinkar-maven-artifacts.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${build-helper-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>${maven-plugin-plugin.version}</version>
+                    <configuration>
+                        <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
