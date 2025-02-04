@@ -6,7 +6,7 @@
     <parent>
         <groupId>dev.ikm.tinkar.data</groupId>
         <artifactId>tinkar-data-bom</artifactId>
-        <version>1.7.0-update-for-new-tinkar-data-SNAPSHOT</version>
+        <version>1.7.0</version>
         <relativePath/>
     </parent>
 
