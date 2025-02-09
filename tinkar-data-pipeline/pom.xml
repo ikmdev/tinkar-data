@@ -7,16 +7,14 @@
 
 	<parent>
 		<groupId>dev.ikm.maven.tinkar</groupId>
-		<artifactId>tinkar-data</artifactId>
-		<version>1.6.0</version>
+		<artifactId>tinkar-data-bom</artifactId>
+		<version>1.6.0-SNAPSHOT</version>
 	</parent>
 
-	<!-- Specific GAV for releasing data artifacts -->
-	<groupId>dev.ikm.data.tinkar</groupId>
-	<artifactId>tinkar-starter-data</artifactId>
+	<artifactId>tinkar-data-pipeline</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Tinkar Starter Data</name>
+	<name>Tinkar Data Pipeline</name>
 
 	<url>http://maven.apache.org</url>
 
@@ -32,8 +30,6 @@
 	</distributionManagement>
 
 	<properties>
-		<reasoner-type>ElkOwlReasoner</reasoner-type>
-		<reinfer-all-hierarchy>true</reinfer-all-hierarchy>
 		<export-prefix>${artifactId}-${version}</export-prefix>
 	</properties>
 
@@ -66,17 +62,6 @@
 						</inlineDescriptors>
 					</configuration>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-install-plugin</artifactId>
-					<configuration>
-						<groupId>${groupId}</groupId>
-						<artifactId>${artifactId}</artifactId>
-						<version>${version}</version>
-						<generatePom>false</generatePom>
-						<packaging>zip</packaging>
-					</configuration>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -86,9 +71,9 @@
 				<executions>
 					<!-- Load starter data into data store -->
 					<execution>
-						<id>generate-data</id>
+						<id>generate-tinkar-starter-data</id>
 						<goals>
-							<goal>generate-data</goal>
+							<goal>generate-starter-data</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -116,7 +101,8 @@
 							<goal>run-full-reasoner</goal>
 						</goals>
 						<configuration>
-							<reinferAllHierarchy>true</reinferAllHierarchy>
+							<reasonerType>${reasoner-type}</reasonerType>
+							<reinferAllHierarchy>${reinfer-all-hierarchy}</reinferAllHierarchy>
 						</configuration>
 					</execution>
 					<!-- Export starter data as a protocol buffers zip file -->
@@ -179,40 +165,103 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Custom install each artifact using a different GAV configuration -->
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.6.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
+						<id>install-unreasoned-sa-artifact</id>
+						<phase>install</phase>
 						<goals>
-							<goal>attach-artifact</goal>
+							<goal>install-file</goal>
 						</goals>
 						<configuration>
-							<artifacts>
-								<artifact>
-									<file>${project.build.directory}/${export-prefix}-unreasoned-sa.zip</file>
-									<classifier>unreasoned</classifier>
-									<type>sa.zip</type>
-								</artifact>
-								<artifact>
-									<file>${project.build.directory}/${export-prefix}-unreasoned-pb.zip</file>
-									<classifier>unreasoned</classifier>
-									<type>pb.zip</type>
-								</artifact>
-								<artifact>
-									<file>${project.build.directory}/${export-prefix}-reasoned-sa.zip</file>
-									<classifier>reasoned</classifier>
-									<type>sa.zip</type>
-								</artifact>
-								<artifact>
-									<file>${project.build.directory}/${export-prefix}-reasoned-pb.zip</file>
-									<classifier>reasoned</classifier>
-									<type>pb.zip</type>
-								</artifact>
-							</artifacts>
+							<file>${project.build.directory}/${export-prefix}-unreasoned-sa.zip</file>
+							<classifier>unreasoned-sa</classifier>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-reasoned-sa-artifact</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>install</phase>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-reasoned-sa.zip</file>
+							<classifier>reasoned-sa</classifier>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-unreasoned-pb-artifact</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>install</phase>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-unreasoned-pb.zip</file>
+							<classifier>unreasoned-pb</classifier>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-reasoned-pb-artifact</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>install</phase>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-reasoned-pb.zip</file>
+							<classifier>reasoned-pb</classifier>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy-unreasoned-sa</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy-file</goal>
+						</goals>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-unreasoned-sa.zip</file>
+							<classifier>unreasoned-sa</classifier>
+						</configuration>
+					</execution>
+					<execution>
+						<id>deploy-reasoned-sa</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy-file</goal>
+						</goals>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-reasoned-sa.zip</file>
+							<classifier>reasoned-sa</classifier>
+						</configuration>
+					</execution>
+					<execution>
+						<id>deploy-unreasoned-pb</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy-file</goal>
+						</goals>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-unreasoned-pb.zip</file>
+							<classifier>unreasoned-pb</classifier>
+						</configuration>
+					</execution>
+					<execution>
+						<id>deploy-reasoned-pb</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy-file</goal>
+						</goals>
+						<configuration>
+							<file>${project.build.directory}/${export-prefix}-reasoned-pb.zip</file>
+							<classifier>reasoned-pb</classifier>
 						</configuration>
 					</execution>
 				</executions>
