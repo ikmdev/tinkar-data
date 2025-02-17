@@ -1,4 +1,4 @@
-package dev.ikm.tinkar;
+package dev.ikm.maven.tinkar;
 
 import dev.ikm.maven.toolkit.SimpleTinkarMojo;
 import dev.ikm.tinkar.common.service.PrimitiveData;
@@ -21,7 +21,7 @@ import org.eclipse.collections.api.list.MutableList;
 
 import static dev.ikm.tinkar.terms.TinkarTerm.*;
 
-@Mojo(name = "generate-data", requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM, defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "generate-starter-data", requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM, defaultPhase = LifecyclePhase.COMPILE)
 public class TinkarStarterDataMojo extends SimpleTinkarMojo {
 
     @Override

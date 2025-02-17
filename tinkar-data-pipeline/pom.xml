@@ -7,8 +7,8 @@
 
 	<parent>
 		<groupId>dev.ikm.maven.tinkar</groupId>
-		<artifactId>tinkar-data-bom</artifactId>
-		<version>1.6.0-SNAPSHOT</version>
+		<artifactId>tinkar-data</artifactId>
+		<version>1.6.0</version>
 	</parent>
 
 	<artifactId>tinkar-data-pipeline</artifactId>
@@ -16,54 +16,38 @@
 
 	<name>Tinkar Data Pipeline</name>
 
-	<url>http://maven.apache.org</url>
+	<url>https://www.ikm.dev</url>
 
 	<distributionManagement>
 		<repository>
 			<id>local-release</id>
+			<name>Local Release Repository</name>
 			<url>file:${project.build.directory}/local_deploy_repo/release</url>
 		</repository>
 		<snapshotRepository>
 			<id>local-snapshot</id>
+			<name>Local SNAPSHOT Repository</name>
 			<url>file:${project.build.directory}/local_deploy_repo/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<properties>
-		<export-prefix>${artifactId}-${version}</export-prefix>
+		<data-bom.version>1.9.0-bumping-versions-SNAPSHOT</data-bom.version>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>dev.ikm.maven.tinkar</groupId>
+				<artifactId>tinkar-data-bom</artifactId>
+				<version>${data-bom.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<build>
-		<pluginManagement>
-			<plugins>
-				<!-- Zip up unreasoned spinedarray database -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.7.1</version>
-					<configuration>
-						<finalName>${export-prefix}</finalName>
-						<attach>false</attach>
-						<inlineDescriptors>
-							<inlineDescriptor>
-								<formats>
-									<format>zip</format>
-								</formats>
-								<fileSets>
-									<fileSet>
-										<directory>${project.build.directory}/datastore</directory>
-										<includes>
-											<include>**</include>
-										</includes>
-									</fileSet>
-								</fileSets>
-								<includeBaseDirectory>false</includeBaseDirectory>
-							</inlineDescriptor>
-						</inlineDescriptors>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>dev.ikm.maven.tinkar</groupId>
@@ -91,7 +75,7 @@
 						</goals>
 						<configuration>
 							<exportDirectory>${project.build.directory}</exportDirectory>
-							<fileName>${export-prefix}-unreasoned-pb.zip</fileName>
+							<fileName>${data-bom.version}-${data-artifact.artifactId}-unreasoned-pb.zip</fileName>
 						</configuration>
 					</execution>
 					<!-- Run full reasoner starter data -->
@@ -101,8 +85,7 @@
 							<goal>run-full-reasoner</goal>
 						</goals>
 						<configuration>
-							<reasonerType>${reasoner-type}</reasonerType>
-							<reinferAllHierarchy>${reinfer-all-hierarchy}</reinferAllHierarchy>
+							<reasonerType>${data-artifact.reasoner-type}</reasonerType>
 						</configuration>
 					</execution>
 					<!-- Export starter data as a protocol buffers zip file -->
@@ -113,7 +96,7 @@
 						</goals>
 						<configuration>
 							<exportDirectory>${project.build.directory}</exportDirectory>
-							<fileName>${export-prefix}-reasoned-pb.zip</fileName>
+							<fileName>${data-bom.version}-${data-artifact.artifactId}-reasoned-pb.zip</fileName>
 						</configuration>
 					</execution>
 				</executions>
@@ -121,7 +104,26 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.7.1</version>
+				<configuration>
+					<finalName>${data-bom.version}-${data-artifact.artifactId}</finalName>
+					<attach>false</attach>
+					<inlineDescriptors>
+						<inlineDescriptor>
+							<formats>
+								<format>zip</format>
+							</formats>
+							<fileSets>
+								<fileSet>
+									<directory>${project.build.directory}/datastore</directory>
+									<includes>
+										<include>**</include>
+									</includes>
+								</fileSet>
+							</fileSets>
+							<includeBaseDirectory>false</includeBaseDirectory>
+						</inlineDescriptor>
+					</inlineDescriptors>
+				</configuration>
 				<executions>
 					<!-- Zip up unreasoned spinedarray database -->
 					<execution>
@@ -136,7 +138,7 @@
 									<id>unreasoned-sa</id>
 									<fileSets>
 										<fileSet>
-											<outputDirectory>${export-prefix}-unreasoned-sa</outputDirectory>
+											<outputDirectory>${data-bom.version}-${data-artifact.artifactId}-unreasoned-sa</outputDirectory>
 										</fileSet>
 									</fileSets>
 								</inlineDescriptor>
@@ -156,7 +158,7 @@
 									<id>reasoned-sa</id>
 									<fileSets>
 										<fileSet>
-											<outputDirectory>${export-prefix}-reasoned-sa</outputDirectory>
+											<outputDirectory>${data-bom.version}-${data-artifact.artifactId}-reasoned-sa</outputDirectory>
 										</fileSet>
 									</fileSets>
 								</inlineDescriptor>
@@ -169,6 +171,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
+				<configuration>
+					<groupId>${data-artifact.groupId}</groupId>
+					<artifactId>${data-artifact.artifactId}</artifactId>
+					<version>${data-bom.version}</version>
+					<pomFile>${project.basedir}/pom.xml</pomFile>
+					<packaging>zip</packaging>
+				</configuration>
 				<executions>
 					<execution>
 						<id>install-unreasoned-sa-artifact</id>
@@ -177,7 +186,7 @@
 							<goal>install-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-unreasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-unreasoned-sa.zip</file>
 							<classifier>unreasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -188,7 +197,7 @@
 						</goals>
 						<phase>install</phase>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-reasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-reasoned-sa.zip</file>
 							<classifier>reasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -199,7 +208,7 @@
 						</goals>
 						<phase>install</phase>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-unreasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-unreasoned-pb.zip</file>
 							<classifier>unreasoned-pb</classifier>
 						</configuration>
 					</execution>
@@ -210,15 +219,25 @@
 						</goals>
 						<phase>install</phase>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-reasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-reasoned-pb.zip</file>
 							<classifier>reasoned-pb</classifier>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Custom deploy each artifact using a different GAV configuration -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<repositoryId>${data-artifact.repositoryId}</repositoryId>
+					<url>${data-artifact.repositoryUrl}</url>
+					<groupId>${data-artifact.groupId}</groupId>
+					<artifactId>${data-artifact.artifactId}</artifactId>
+					<version>${data-bom.version}</version>
+					<pomFile>${project.basedir}/pom.xml</pomFile>
+					<packaging>zip</packaging>
+				</configuration>
 				<executions>
 					<execution>
 						<id>deploy-unreasoned-sa</id>
@@ -227,7 +246,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-unreasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-unreasoned-sa.zip</file>
 							<classifier>unreasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -238,7 +257,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-reasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-reasoned-sa.zip</file>
 							<classifier>reasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -249,7 +268,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-unreasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-unreasoned-pb.zip</file>
 							<classifier>unreasoned-pb</classifier>
 						</configuration>
 					</execution>
@@ -260,7 +279,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${export-prefix}-reasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-bom.version}-${data-artifact.artifactId}-reasoned-pb.zip</file>
 							<classifier>reasoned-pb</classifier>
 						</configuration>
 					</execution>

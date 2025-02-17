@@ -1,4 +1,4 @@
-package dev.ikm.tinkar;
+package dev.ikm.maven.tinkar;
 
 import dev.ikm.maven.toolkit.SimpleTinkarMojo;
 import dev.ikm.tinkar.common.id.IntIds;
