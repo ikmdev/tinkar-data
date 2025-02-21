@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>dev.ikm.maven.tinkar</groupId>
-    <artifactId>tinkar-data</artifactId>
+    <artifactId>tinkar-data-parent</artifactId>
     <version>1.6.0</version>
     <name>Tinkar Data</name>
     <description>Tinkar Data Project</description>
@@ -31,12 +31,18 @@
         <maven-plugin-api.version>3.9.8</maven-plugin-api.version>
         <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <maven-dependency-plugin>3.8.1</maven-dependency-plugin>
+        <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <!-- Testing dependencies -->
         <jupiter.version>5.10.0</jupiter.version>
         <!-- Logging dependencies -->
         <log4j.version>3.0.0-alpha1</log4j.version>
         <slf4j.version>2.0.13</slf4j.version>
+        <!-- Properties Definition -->
+        <tinkar-data-properties.groupId>dev.ikm.maven.tinkar</tinkar-data-properties.groupId>
+        <tinkar-data-properties.artifactId>tinkar-starter-data-properties</tinkar-data-properties.artifactId>
+        <data-artifact-deploy-url>file:${project.build.directory}/local_deploy_repo/release</data-artifact-deploy-url>
     </properties>
 
     <modules>
@@ -205,6 +211,16 @@
                     <configuration>
                         <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>${properties-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
