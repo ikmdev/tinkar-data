@@ -5,6 +5,10 @@ run-name: Run Tinkar Starter Data Pipeline With Property Version -- ${{inputs.pr
 on:
     workflow_dispatch:
         inputs:
+            link:
+                type: string
+                description: https://central.sonatype.com/artifact/dev.ikm.tinkar/tinkar-core/versions
+                required: false
             property:
                 type: string
                 description: "Enter Tinkar Starter Data Properties Version"
