@@ -19,6 +19,5 @@ jobs:
             - name: Checkout Code 
               uses: actions/checkout@v4
 
-
             - name: Build With Property
               run: mvn clean deploy -Dtinkar-starter-data-properties.version=${{inputs.property}}
