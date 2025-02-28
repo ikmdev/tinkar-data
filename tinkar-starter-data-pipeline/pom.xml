@@ -31,10 +31,6 @@
 		</snapshotRepository>
 	</distributionManagement>
 
-	<properties>
-		<data-artifact.reasoner-type>ElkSnomedReasoner</data-artifact.reasoner-type>
-	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -114,9 +110,6 @@
 						<goals>
 							<goal>run-full-reasoner</goal>
 						</goals>
-						<configuration>
-							<reasonerType>${data-artifact.reasoner-type}</reasonerType>
-						</configuration>
 					</execution>
 					<!-- Export starter data as a protocol buffers zip file -->
 					<execution>

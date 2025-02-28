@@ -22,7 +22,6 @@
 		<tinkar-example-data-properties.groupId>dev.ikm.maven.tinkar</tinkar-example-data-properties.groupId>
 		<tinkar-example-data-properties.artifactId>tinkar-example-data-properties</tinkar-example-data-properties.artifactId>
 		<tinkar-starter-data.classifier>unreasoned-sa</tinkar-starter-data.classifier>
-		<data-artifact.reasoner-type>ElkSnomedReasoner</data-artifact.reasoner-type>
 	</properties>
 
 	<distributionManagement>
@@ -143,7 +142,6 @@
 						</goals>
 						<configuration>
 							<dataStore>${project.build.directory}/${tinkar-starter-data.artifactId}-${tinkar-starter-data.version}-${tinkar-starter-data.classifier}</dataStore>
-							<reasonerType>${data-artifact.reasoner-type}</reasonerType>
 						</configuration>
 					</execution>
 					<!-- Export starter data as a protocol buffers zip file -->
