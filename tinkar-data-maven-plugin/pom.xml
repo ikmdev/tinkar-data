@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>terms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
             <artifactId>entity</artifactId>
         </dependency>
         <dependency>
@@ -49,14 +53,6 @@
         <dependency>
             <groupId>dev.ikm.maven.tinkar</groupId>
             <artifactId>tinkar-maven-toolkit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
