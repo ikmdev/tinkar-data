@@ -1,67 +1,31 @@
-package dev.ikm.tinkar;
+package dev.ikm.maven.tinkar;
 
-import dev.ikm.tinkar.common.service.CachingService;
+import dev.ikm.maven.toolkit.SimpleTinkarMojo;
 import dev.ikm.tinkar.common.service.PrimitiveData;
-import dev.ikm.tinkar.common.service.ServiceKeys;
-import dev.ikm.tinkar.common.service.ServiceProperties;
-import dev.ikm.tinkar.common.util.io.FileUtil;
 import dev.ikm.tinkar.common.util.time.DateTimeUtil;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
 import dev.ikm.tinkar.composer.assembler.PatternAssembler;
 import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
-import dev.ikm.tinkar.composer.template.Definition;
-import dev.ikm.tinkar.composer.template.FullyQualifiedName;
-import dev.ikm.tinkar.composer.template.Identifier;
-import dev.ikm.tinkar.composer.template.KometBaseModel;
-import dev.ikm.tinkar.composer.template.StatedAxiom;
-import dev.ikm.tinkar.composer.template.StatedNavigation;
-import dev.ikm.tinkar.composer.template.Synonym;
-import dev.ikm.tinkar.composer.template.TinkarBaseModel;
-import dev.ikm.tinkar.composer.template.USDialect;
+import dev.ikm.tinkar.composer.template.*;
 import dev.ikm.tinkar.entity.EntityService;
-import dev.ikm.tinkar.entity.export.ExportEntitiesController;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
 import dev.ikm.tinkar.terms.TinkarTerm;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.concurrent.ExecutionException;
 
 import static dev.ikm.tinkar.terms.TinkarTerm.*;
 
-public class TinkarStarterData {
+@Mojo(name = "generate-starter-data", requiresDependencyResolution = ResolutionScope.RUNTIME_PLUS_SYSTEM, defaultPhase = LifecyclePhase.COMPILE)
+public class TinkarStarterDataMojo extends SimpleTinkarMojo {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TinkarStarterData.class.getSimpleName());
-
-    private final File exportFile;
-    private final File datastore;
-
-    public TinkarStarterData(String[] args) {
-        datastore = new File(args[0]);
-        exportFile = new File(args[1]);
-        FileUtil.recursiveDelete(datastore);
-    }
-
-    private void init() {
-        LOG.info("Starting database");
-        LOG.info("Loading data from {}", datastore.getAbsolutePath());
-        CachingService.clearAll();
-        ServiceProperties.set(ServiceKeys.DATA_STORE_ROOT, datastore);
-        PrimitiveData.selectControllerByName("Open SpinedArrayStore");
-        PrimitiveData.start();
-    }
-
-    private void cleanup() {
-        PrimitiveData.stop();
-    }
-
-    private void transform() {
+    @Override
+    public void run() throws Exception {
         EntityService.get().beginLoadPhase();
         try {
             Composer composer = new Composer("Tinkar Starter Data Composer");
@@ -103,10 +67,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ENGLISH_DIALECT_ASSEMBLAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(GB_ENGLISH_DIALECT, US_ENGLISH_DIALECT)
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TEXT_COMPARISON_MEASURE_SEMANTIC))
@@ -128,10 +92,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TEXT_COMPARISON_MEASURE_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(CASE_INSENSITIVE_EVALUATION, CASE_SENSITIVE_EVALUATION)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(STARTER_DATA_AUTHORING))
@@ -153,9 +117,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STARTER_DATA_AUTHORING.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
 
@@ -178,9 +142,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AXIOM_SYNTAX.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EXPRESS_AXIOM_SYNTAX))
@@ -202,9 +166,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EXPRESS_AXIOM_SYNTAX.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(AXIOM_SYNTAX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(AXIOM_SYNTAX)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ACCEPTABLE))
@@ -226,9 +190,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ACCEPTABLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_ACCEPTABILITY))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_ACCEPTABILITY)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ACTIVE_STATE))
@@ -250,9 +214,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ACTIVE_STATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(STATUS_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(STATUS_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ALLOWED_STATES_FOR_STAMP_COORDINATE))
@@ -274,9 +238,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ALLOWED_STATES_FOR_STAMP_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(AND))
@@ -298,9 +262,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AND.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONNECTIVE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONNECTIVE_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ANNOTATION_TYPE))
@@ -322,10 +286,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ANNOTATION_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(COMMENT, KOMET_ISSUE)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ANONYMOUS_CONCEPT))
@@ -347,9 +311,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ANONYMOUS_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCEPT_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCEPT_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ANY_COMPONENT))
@@ -371,9 +335,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ANY_COMPONENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ARRAY))
@@ -395,9 +359,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ARRAY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ARRAY_FIELD))
@@ -419,9 +383,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ARRAY_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(AUTHOR_FOR_EDIT_COORDINATE))
@@ -443,9 +407,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AUTHOR_FOR_EDIT_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(AUTHOR_FOR_VERSION))
@@ -467,9 +431,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AUTHOR_FOR_VERSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(AUTHORS_FOR_STAMP_COORDINATE))
@@ -491,9 +455,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AUTHORS_FOR_STAMP_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(AXIOM_FOCUS))
@@ -515,9 +479,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AXIOM_FOCUS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(COMPONENT_TYPE_FOCUS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(COMPONENT_TYPE_FOCUS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(AXIOM_ORIGIN))
@@ -539,10 +503,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(AXIOM_ORIGIN.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(STATED_PREMISE_TYPE, INFERRED_PREMISE_TYPE)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BOOLEAN_FIELD))
@@ -564,9 +528,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BOOLEAN_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BOOLEAN_LITERAL))
@@ -588,9 +552,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BOOLEAN_LITERAL.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LITERAL_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LITERAL_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BOOLEAN_REFERENCE))
@@ -612,9 +576,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BOOLEAN_REFERENCE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(QUERY_CLAUSES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(QUERY_CLAUSES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BOOLEAN_SUBSTITUTION))
@@ -636,9 +600,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BOOLEAN_SUBSTITUTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(FIELD_SUBSTITUTION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(FIELD_SUBSTITUTION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BYTE_ARRAY_FIELD))
@@ -660,9 +624,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BYTE_ARRAY_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CANCELED_STATE))
@@ -684,9 +648,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CANCELED_STATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(STATUS_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(STATUS_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CASE_INSENSITIVE_EVALUATION))
@@ -708,9 +672,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CASE_INSENSITIVE_EVALUATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TEXT_COMPARISON_MEASURE_SEMANTIC))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TEXT_COMPARISON_MEASURE_SEMANTIC)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CASE_SENSITIVE_EVALUATION))
@@ -732,9 +696,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CASE_SENSITIVE_EVALUATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TEXT_COMPARISON_MEASURE_SEMANTIC))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TEXT_COMPARISON_MEASURE_SEMANTIC)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION))
@@ -756,9 +720,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CHINESE_LANGUAGE))
@@ -780,9 +744,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CHINESE_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CHRONICLE_PROPERTIES))
@@ -804,10 +768,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CHRONICLE_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(PRIMORDIAL_UUID_FOR_CHRONICLE, VERSION_LIST_FOR_CHRONICLE, SEMANTIC_LIST_FOR_CHRONICLE, UUID_LIST_FOR_COMPONENT)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(COMMENT))
@@ -829,9 +793,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMMENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ANNOTATION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ANNOTATION_TYPE)).attach(new TinkarBaseModel());
 
 
@@ -854,9 +818,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMPONENT_ID_LIST_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(COMPONENT_ID_SET_FIELD))
@@ -878,9 +842,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMPONENT_ID_SET_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(COMPONENT_FIELD))
@@ -902,9 +866,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMPONENT_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(COMPONENT_FOR_SEMANTIC))
@@ -926,9 +890,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMPONENT_FOR_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(COMPONENT_SEMANTIC))
@@ -950,9 +914,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMPONENT_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(COMPONENT_TYPE_FOCUS))
@@ -974,10 +938,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(COMPONENT_TYPE_FOCUS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(AXIOM_FOCUS, CONCEPT_FOCUS, DESCRIPTION_FOCUS)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_CONSTRAINTS))
@@ -999,9 +963,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_CONSTRAINTS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ACTION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ACTION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_DETAILS_TREE_TABLE))
@@ -1023,9 +987,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_DETAILS_TREE_TABLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_FIELD))
@@ -1047,9 +1011,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_FOCUS))
@@ -1071,9 +1035,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_FOCUS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(COMPONENT_TYPE_FOCUS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(COMPONENT_TYPE_FOCUS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_REFERENCE))
@@ -1095,9 +1059,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_REFERENCE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONNECTIVE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONNECTIVE_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_SEMANTIC))
@@ -1119,9 +1083,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_SUBSTITUTION))
@@ -1143,9 +1107,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_SUBSTITUTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(FIELD_SUBSTITUTION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(FIELD_SUBSTITUTION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_TO_FIND))
@@ -1167,9 +1131,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_TO_FIND.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ACTION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ACTION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_TYPE))
@@ -1191,10 +1155,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ANONYMOUS_CONCEPT, PATH_CONCEPT, SEMANTIC_FIELD_CONCEPTS)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_VERSION))
@@ -1216,9 +1180,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_VERSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -1241,10 +1205,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCRETE_DOMAIN_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO, LESS_THAN, LESS_THAN_OR_EQUAL_TO, MAXIMUM_VALUE_OPERATOR, MINIMUM_VALUE_OPERATOR)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONDITIONAL_TRIGGERS))
@@ -1266,9 +1230,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONDITIONAL_TRIGGERS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ACTION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ACTION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONNECTIVE_OPERATOR))
@@ -1290,10 +1254,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONNECTIVE_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(AND, DEFINITION_ROOT, DISJOINT_WITH, OR, IS_A, PART_OF, CONCEPT_REFERENCE)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CORELATION_EXPRESSION))
@@ -1315,9 +1279,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CORELATION_EXPRESSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CORRELATION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CORRELATION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CORELATION_REFERENCE_EXPRESSION))
@@ -1339,9 +1303,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CORELATION_REFERENCE_EXPRESSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CORRELATION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CORRELATION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CORRELATION_PROPERTIES))
@@ -1363,10 +1327,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CORRELATION_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(CORELATION_EXPRESSION, CORELATION_REFERENCE_EXPRESSION)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CREATIVE_COMMONS_BY_LICENSE))
@@ -1388,9 +1352,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CREATIVE_COMMONS_BY_LICENSE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CZECH_DIALECT))
@@ -1412,9 +1376,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CZECH_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CZECH_LANGUAGE))
@@ -1436,9 +1400,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CZECH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
 
@@ -1461,9 +1425,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DANISH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DEFAULT_MODULE_FOR_EDIT_COORDINATE))
@@ -1485,9 +1449,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DEFAULT_MODULE_FOR_EDIT_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DEFINITION_DESCRIPTION_TYPE))
@@ -1509,9 +1473,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DEFINITION_DESCRIPTION_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DEFINITION_ROOT))
@@ -1533,9 +1497,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DEFINITION_ROOT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONNECTIVE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONNECTIVE_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION))
@@ -1557,9 +1521,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_ACCEPTABILITY))
@@ -1581,10 +1545,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_ACCEPTABILITY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ACCEPTABLE, PREFERRED)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_CASE_SENSITIVE))
@@ -1606,9 +1570,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_CASE_SENSITIVE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_CASE_SIGNIFICANCE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_CASE_SIGNIFICANCE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_CASE_SIGNIFICANCE))
@@ -1630,10 +1594,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_CASE_SIGNIFICANCE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(DESCRIPTION_CASE_SENSITIVE, DESCRIPTION_NOT_CASE_SENSITIVE)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_CORE_TYPE))
@@ -1655,9 +1619,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_CORE_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_DIALECT_PAIR))
@@ -1679,10 +1643,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_DIALECT_PAIR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(DESCRIPTION_FOR_DIALECT_AND_OR_DESCRIPTION_PAIR, DIALECT_FOR_DIALECT_AND_OR_DESCRIPTION_PAIR)
                         .parents(DESCRIPTION_VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_FOCUS))
@@ -1704,9 +1668,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_FOCUS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(COMPONENT_TYPE_FOCUS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(COMPONENT_TYPE_FOCUS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_FOR_DIALECT_AND_OR_DESCRIPTION_PAIR))
@@ -1728,9 +1692,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_FOR_DIALECT_AND_OR_DESCRIPTION_PAIR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_DIALECT_PAIR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_DIALECT_PAIR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE))
@@ -1752,9 +1716,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_CASE_SIGNIFICANCE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_CASE_SIGNIFICANCE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_LOGIC_PROFILE_FOR_LOGIC_COORDINATE))
@@ -1776,9 +1740,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_LOGIC_PROFILE_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_NOT_CASE_SENSITIVE))
@@ -1800,9 +1764,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_NOT_CASE_SENSITIVE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_CASE_SIGNIFICANCE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_CASE_SIGNIFICANCE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_SEMANTIC))
@@ -1824,9 +1788,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_TYPE))
@@ -1848,10 +1812,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(DEFINITION_DESCRIPTION_TYPE, FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, REGULAR_NAME_DESCRIPTION_TYPE)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -1874,9 +1838,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_TYPE_FOR_DESCRIPTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_TYPE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE))
@@ -1898,9 +1862,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_TYPE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_VERSION_PROPERTIES))
@@ -1922,10 +1886,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_VERSION_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION, DESCRIPTION_TYPE_FOR_DESCRIPTION, LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, DESCRIPTION_DIALECT_PAIR)
                         .parents(VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_LOGIC_PROFILE))
@@ -1947,10 +1911,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_LOGIC_PROFILE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(EL_PLUS_PLUS_PROFILE)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESTINATION_MODULE_FOR_EDIT_COORDINATE))
@@ -1972,9 +1936,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESTINATION_MODULE_FOR_EDIT_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DEVELOPMENT_MODULE))
@@ -1996,9 +1960,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DEVELOPMENT_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(MODULE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MODULE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DEVELOPMENT_PATH))
@@ -2020,9 +1984,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DEVELOPMENT_PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DIGRAPH_FIELD))
@@ -2044,9 +2008,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DIGRAPH_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DITREE_FIELD))
@@ -2068,9 +2032,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DITREE_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DIALECT_FOR_DIALECT_AND_OR_DESCRIPTION_PAIR))
@@ -2092,9 +2056,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DIALECT_FOR_DIALECT_AND_OR_DESCRIPTION_PAIR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_DIALECT_PAIR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_DIALECT_PAIR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DIGRAPH_FOR_LOGIC_COORDINATE))
@@ -2116,9 +2080,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DIGRAPH_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DIRECTED_GRAPH))
@@ -2140,10 +2104,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DIRECTED_GRAPH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(EL_PLUS_PLUS_DIGRAPH)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DISJOINT_WITH))
@@ -2165,9 +2129,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DISJOINT_WITH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONNECTIVE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONNECTIVE_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DISPLAY_FIELDS))
@@ -2189,10 +2153,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DISPLAY_FIELDS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(COMPONENT_FIELD, COMPONENT_ID_LIST_FIELD, COMPONENT_ID_SET_FIELD, CONCEPT_FIELD, DIGRAPH_FIELD, DITREE_FIELD, FLOAT_FIELD, INTEGER_FIELD, SEMANTIC_FIELD_TYPE, STRING, DECIMAL_FIELD)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DOUBLE_FIELD))
@@ -2214,9 +2178,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DOUBLE_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DUTCH_LANGUAGE))
@@ -2238,9 +2202,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DUTCH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EL_PROFILE_SET_OPERATOR))
@@ -2262,10 +2226,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PROFILE_SET_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(NECESSARY_SET, SUFFICIENT_SET)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
 
@@ -2288,10 +2252,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_TERMINOLOGICAL_AXIOMS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -2314,9 +2278,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_INFERRED_CONCEPT_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LOGICAL_DEFINITION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LOGICAL_DEFINITION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS))
@@ -2338,10 +2302,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .children(NECESSARY_SET, SUFFICIENT_SET, INCLUSION_SET, ROLE, ROLE_GROUP)
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
+                        .children(NECESSARY_SET, SUFFICIENT_SET, INCLUSION_SET, TinkarTerm.ROLE, ROLE_GROUP)
                         .parents(EL_PLUS_PLUS_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EL_PLUS_PLUS_STATED_CONCEPT_DEFINITION))
@@ -2363,9 +2327,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_STATED_CONCEPT_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LOGICAL_DEFINITION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LOGICAL_DEFINITION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS))
@@ -2387,10 +2351,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .children(NECESSARY_SET, SUFFICIENT_SET, INCLUSION_SET, ROLE, ROLE_GROUP)
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
+                        .children(NECESSARY_SET, SUFFICIENT_SET, INCLUSION_SET, TinkarTerm.ROLE, ROLE_GROUP)
                         .parents(EL_PLUS_PLUS_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EL_PLUS_PLUS_DIGRAPH))
@@ -2412,9 +2376,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_DIGRAPH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DIRECTED_GRAPH))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIRECTED_GRAPH)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EL_PLUS_PLUS_PROFILE))
@@ -2436,9 +2400,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EL_PLUS_PLUS_PROFILE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_LOGIC_PROFILE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_LOGIC_PROFILE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ENGLISH_LANGUAGE))
@@ -2460,9 +2424,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ENGLISH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EQUAL_TO))
@@ -2484,9 +2448,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EQUAL_TO.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EXACT))
@@ -2508,9 +2472,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EXACT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(GROUPING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(GROUPING)).attach(new TinkarBaseModel());
 
 
@@ -2533,9 +2497,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EXTENDED_DESCRIPTION_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EXTENDED_RELATIONSHIP_TYPE))
@@ -2557,9 +2521,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EXTENDED_RELATIONSHIP_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DECIMAL_FIELD))
@@ -2581,9 +2545,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DECIMAL_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
 
@@ -2606,9 +2570,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FLOAT_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FLOAT_LITERAL))
@@ -2630,9 +2594,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FLOAT_LITERAL.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LITERAL_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LITERAL_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FLOAT_SUBSTITUTION))
@@ -2654,9 +2618,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FLOAT_SUBSTITUTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(FIELD_SUBSTITUTION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(FIELD_SUBSTITUTION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FRENCH_DIALECT))
@@ -2678,9 +2642,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FRENCH_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FRENCH_LANGUAGE))
@@ -2702,9 +2666,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FRENCH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE))
@@ -2726,9 +2690,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(GB_ENGLISH_DIALECT))
@@ -2750,9 +2714,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(GB_ENGLISH_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ENGLISH_DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ENGLISH_DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(GERMAN_LANGUAGE))
@@ -2774,9 +2738,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(GERMAN_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(GREATER_THAN))
@@ -2798,9 +2762,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(GREATER_THAN.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -2823,9 +2787,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(GREATER_THAN_OR_EQUAL_TO.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -2848,10 +2812,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(GROUPING.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(EXACT, PARTIAL)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -2874,9 +2838,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(HEALTH_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
 
@@ -2899,10 +2863,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IDENTIFIER_SOURCE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INCLUSION_SET))
@@ -2924,9 +2888,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INCLUSION_SET.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INACTIVE_STATE))
@@ -2948,9 +2912,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INACTIVE_STATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(STATUS_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(STATUS_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INFERRED_PREMISE_TYPE))
@@ -2972,9 +2936,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INFERRED_PREMISE_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(AXIOM_ORIGIN))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(AXIOM_ORIGIN)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INSTANT_LITERAL))
@@ -2996,9 +2960,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INSTANT_LITERAL.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LITERAL_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LITERAL_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INSTANT_SUBSTITUTION))
@@ -3020,9 +2984,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INSTANT_SUBSTITUTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(FIELD_SUBSTITUTION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(FIELD_SUBSTITUTION)).attach(new TinkarBaseModel());
 
 
@@ -3045,9 +3009,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INTEGER_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INVERSE_NAME))
@@ -3069,9 +3033,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INVERSE_NAME.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INVERSE_TREE_LIST))
@@ -3093,9 +3057,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INVERSE_TREE_LIST.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TREE_AMALGAM_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TREE_AMALGAM_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IRISH_DIALECT))
@@ -3117,9 +3081,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IRISH_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IRISH_LANGUAGE))
@@ -3141,9 +3105,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IRISH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IS_A))
@@ -3165,9 +3129,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IS_A.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IS_A_INFERRED_NAVIGATION))
@@ -3189,9 +3153,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IS_A_INFERRED_NAVIGATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(NAVIGATION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(NAVIGATION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IS_A_STATED_NAVIGATION))
@@ -3213,9 +3177,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IS_A_STATED_NAVIGATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(NAVIGATION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(NAVIGATION)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ITALIAN_LANGUAGE))
@@ -3237,9 +3201,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ITALIAN_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(KOMET_MODULE))
@@ -3261,9 +3225,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(KOMET_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(MODULE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MODULE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(KOMET_USER))
@@ -3285,9 +3249,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(KOMET_USER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(KOMET_USER_LIST))
@@ -3309,9 +3273,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(KOMET_USER_LIST.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(KOMET_ISSUE))
@@ -3333,9 +3297,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(KOMET_ISSUE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ANNOTATION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ANNOTATION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(KOREAN_DIALECT))
@@ -3357,10 +3321,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(KOREAN_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(STANDARD_KOREAN_DIALECT)
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(KOREAN_LANGUAGE))
@@ -3382,9 +3346,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(KOREAN_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
 
@@ -3407,10 +3371,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ENGLISH_LANGUAGE, SPANISH_LANGUAGE)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION))
@@ -3432,9 +3396,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LANGUAGE_COORDINATE_NAME))
@@ -3456,9 +3420,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LANGUAGE_COORDINATE_NAME.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LANGUAGE_COORDINATE_PROPERTIES))
@@ -3480,10 +3444,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LANGUAGE_COORDINATE_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(LANGUAGE_COORDINATE_NAME, DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE))
@@ -3505,9 +3469,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LANGUAGE_SPECIFICATION_FOR_LANGUAGE_COORDINATE))
@@ -3529,9 +3493,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LANGUAGE_SPECIFICATION_FOR_LANGUAGE_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LESS_THAN))
@@ -3553,9 +3517,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LESS_THAN.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LESS_THAN_OR_EQUAL_TO))
@@ -3577,9 +3541,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LESS_THAN_OR_EQUAL_TO.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LITHUANIAN_LANGUAGE))
@@ -3601,9 +3565,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LITHUANIAN_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LOGIC_COORDINATE_NAME))
@@ -3625,9 +3589,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGIC_COORDINATE_NAME.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LOGIC_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LOGIC_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -3650,10 +3614,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGIC_COORDINATE_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(LOGIC_COORDINATE_NAME)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LOGICAL_DEFINITION))
@@ -3675,9 +3639,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGICAL_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LOGICAL_EXPRESSION_FIELD))
@@ -3699,9 +3663,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGICAL_EXPRESSION_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LOGICAL_EXPRESSION_SEMANTIC))
@@ -3723,9 +3687,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGICAL_EXPRESSION_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LOGICALLY_EQUIVALENT_TO))
@@ -3747,9 +3711,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGICALLY_EQUIVALENT_TO.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TAXONOMY_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TAXONOMY_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MASTER_PATH))
@@ -3771,9 +3735,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MASTER_PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MEANING))
@@ -3795,9 +3759,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MEANING.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MEMBERSHIP_SEMANTIC))
@@ -3819,9 +3783,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MEMBERSHIP_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_TYPE)).attach(new TinkarBaseModel());
 
 
@@ -3844,10 +3808,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODEL_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(TINKAR_MODEL_CONCEPT)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
 
@@ -3870,7 +3834,7 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TINKAR_MODEL_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(AXIOM_ORIGIN, CONCRETE_DOMAIN_OPERATOR, DESCRIPTION, DESCRIPTION_ACCEPTABILITY,
                                 DESCRIPTION_CASE_SIGNIFICANCE, DESCRIPTION_SEMANTIC, DESCRIPTION_TYPE,
                                 DIALECT_ASSEMBLAGE, DISPLAY_FIELDS, EL_PLUS_PLUS_TERMINOLOGICAL_AXIOMS,
@@ -3880,7 +3844,7 @@ public class TinkarStarterData {
                                 REFERENCE_RANGE, STATED_DEFINITION, TEXT_FOR_DESCRIPTION, VALUE_CONSTRAINT,
                                 VALUE_CONSTRAINT_SOURCE, AXIOM_SYNTAX)
                         .parents(MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -3903,10 +3867,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(PRIMORDIAL_MODULE)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
 
@@ -3929,9 +3893,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_EXCLUSION_SET_FOR_STAMP_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -3954,9 +3918,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_FOR_USER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
 
@@ -3979,9 +3943,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_FOR_VERSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MODULE_OPTIONS_FOR_EDIT_COORDINATE))
@@ -4003,9 +3967,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_OPTIONS_FOR_EDIT_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4028,9 +3992,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_PREFERENCE_LIST_FOR_STAMP_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4053,9 +4017,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4078,9 +4042,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_PREFERENCE_ORDER_FOR_STAMP_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4103,9 +4067,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULES_FOR_STAMP_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4128,10 +4092,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NAVIGATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(NAVIGATION_CONCEPT_SET, NAVIGATION_VERTEX)
                         .parents(PURPOSE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PURPOSE)).attach(new TinkarBaseModel());
 
 
@@ -4154,9 +4118,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NAVIGATION_CONCEPT_SET.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(NAVIGATION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(NAVIGATION)).attach(new TinkarBaseModel());
 
 
@@ -4179,9 +4143,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NAVIGATION_VERTEX.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(NAVIGATION))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(NAVIGATION)).attach(new TinkarBaseModel());
 
 
@@ -4204,9 +4168,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
 
@@ -4229,9 +4193,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NECESSARY_SET.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
 
@@ -4254,9 +4218,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NOT_APPLICABLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_CASE_SIGNIFICANCE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_CASE_SIGNIFICANCE)).attach(new TinkarBaseModel());
 
 
@@ -4279,10 +4243,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(OBJECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(STATUS_VALUE, DESCRIPTION, NID, UNIVERSALLY_UNIQUE_IDENTIFIER, ANY_COMPONENT, UNINITIALIZED_COMPONENT, SANDBOX_COMPONENT, MODULE, PATH, OBJECT_PROPERTIES, HAS_ACTIVE_INGREDIENT, HAS_DOSE_FORM, LATERALITY)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
 
@@ -4305,13 +4269,13 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(OBJECT_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ACTION_PROPERTIES, CHRONICLE_PROPERTIES, VERSION_PROPERTIES, IMMUTABLECOORDINATE_PROPERTIES,
                                 LANGUAGE_COORDINATE_PROPERTIES, LOGIC_COORDINATE_PROPERTIES, PATH_COORDINATE_PROPERTIES,
                                 SEMANTIC_PROPERTIES, TREE_AMALGAM_PROPERTIES, CORRELATION_PROPERTIES, TRANSITIVE_PROPERTY,
                                 REFLEXIVE_PROPERTY, ANNOTATION_PROPERTY_SET, DATA_PROPERTY_SET, PROPERTY_SEQUENCE_IMPLICATION)
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
 
@@ -4334,9 +4298,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(OR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONNECTIVE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONNECTIVE_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -4359,9 +4323,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ORDER_FOR_AXIOM_ATTACHMENTS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ORDER_FOR_CONCEPT_ATTACHMENTS))
@@ -4383,9 +4347,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ORDER_FOR_CONCEPT_ATTACHMENTS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
 
@@ -4408,9 +4372,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ORDER_FOR_DESCRIPTION_ATTACHMENTS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
 
@@ -4433,9 +4397,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PART_OF.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONNECTIVE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONNECTIVE_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -4458,9 +4422,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PARTIAL.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(GROUPING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(GROUPING)).attach(new TinkarBaseModel());
 
 
@@ -4483,10 +4447,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(DEVELOPMENT_PATH, MASTER_PATH, PRIMORDIAL_PATH, SANDBOX_PATH)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
 
@@ -4509,9 +4473,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCEPT_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCEPT_TYPE)).attach(new TinkarBaseModel());
 
 
@@ -4534,9 +4498,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_COORDINATE_NAME.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4559,10 +4523,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_COORDINATE_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(PATH_COORDINATE_NAME, PATH_ORIGINS)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4585,9 +4549,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_FOR_PATH_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4610,9 +4574,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_FOR_USER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(USER))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(USER)).attach(new TinkarBaseModel());
 
 
@@ -4635,9 +4599,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_FOR_VERSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4660,9 +4624,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_OPTIONS_FOR_EDIT_CORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4685,9 +4649,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_ORIGINS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4710,9 +4674,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PATH_ORIGINS_FOR_STAMP_PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4735,9 +4699,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PROMOTION_PATH_FOR_EDIT_CORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4760,10 +4724,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PHENOMENON.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(EXAMPLE_UCUM_UNITS)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -4786,9 +4750,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(POLISH_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
 
@@ -4811,9 +4775,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(POLISH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
 
@@ -4836,9 +4800,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PREFERRED.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_ACCEPTABILITY))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_ACCEPTABILITY)).attach(new TinkarBaseModel());
 
 
@@ -4861,9 +4825,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PRESENTATION_UNIT_DIFFERENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
 
@@ -4886,9 +4850,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PRIMORDIAL_UUID_FOR_CHRONICLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CHRONICLE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CHRONICLE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -4911,9 +4875,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PRIMORDIAL_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(MODULE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MODULE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PRIMORDIAL_PATH))
@@ -4935,9 +4899,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PRIMORDIAL_PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH)).attach(new TinkarBaseModel());
 
 
@@ -4960,9 +4924,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PRIMORDIAL_STATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(STATUS_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(STATUS_VALUE)).attach(new TinkarBaseModel());
 
 
@@ -4985,9 +4949,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFERENCED_COMPONENT_NID_FOR_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -5010,9 +4974,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFERENCED_COMPONENT_SUBTYPE_RESTRICTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ROLE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROLE_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -5035,9 +4999,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFERENCED_COMPONENT_TYPE_RESTRICTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ROLE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROLE_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -5060,9 +5024,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REGULAR_NAME_DESCRIPTION_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
 
@@ -5085,9 +5049,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(RELATIONSHIP_DESTINATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -5110,12 +5074,12 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(RELATIONSHIP_ORIGIN.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
-        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ROLE))
+        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TinkarTerm.ROLE))
                 .attach((FullyQualifiedName fqn) -> fqn
                         .text("Role")
                         .language(ENGLISH_LANGUAGE)
@@ -5133,11 +5097,11 @@ public class TinkarStarterData {
                         .attach(usDialect()))
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
-                        .identifier(ROLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                        .identifier(TinkarTerm.ROLE.asUuidArray()[0].toString()))
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ROLE_TYPE, ROLE_OPERATOR, ROLE_RESTRICTION)
                         .parents(ROLE_GROUP, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROLE_GROUP, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
 
@@ -5160,10 +5124,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ROLE_GROUP.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .children(ROLE)
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
+                        .children(TinkarTerm.ROLE)
                         .parents(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS));
 
 
@@ -5186,11 +5150,11 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ROLE_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(UNIVERSAL_RESTRICTION, EXISTENTIAL_RESTRICTION)
-                        .parents(ROLE))
-                .attach(new StatedAxiom()
-                        .isA(ROLE));
+                        .parents(TinkarTerm.ROLE))
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
+                        .isA(TinkarTerm.ROLE));
 
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ROLE_RESTRICTION))
@@ -5212,10 +5176,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ROLE_RESTRICTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .parents(ROLE))
-                .attach(new StatedAxiom()
-                        .isA(ROLE));
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
+                        .parents(TinkarTerm.ROLE))
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
+                        .isA(TinkarTerm.ROLE));
 
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ROLE_TYPE))
@@ -5237,10 +5201,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ROLE_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .parents(ROLE))
-                .attach(new StatedAxiom()
-                        .isA(ROLE));
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
+                        .parents(TinkarTerm.ROLE))
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
+                        .isA(TinkarTerm.ROLE));
 
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ROLE_TYPE_TO_ADD))
@@ -5262,9 +5226,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ROLE_TYPE_TO_ADD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ACTION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ACTION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ROOT_FOR_LOGIC_COORDINATE))
@@ -5286,9 +5250,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ROOT_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(RUSSIAN_DIALECT))
@@ -5310,9 +5274,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(RUSSIAN_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(RUSSIAN_LANGUAGE))
@@ -5334,9 +5298,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(RUSSIAN_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
 
@@ -5359,10 +5323,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SANDBOX_COMPONENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(SANDBOX_MODULE, SANDBOX_PATH)
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(SANDBOX_MODULE))
@@ -5384,10 +5348,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SANDBOX_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(SANDBOX_PATH_MODULE)
                         .parents(MODULE, SANDBOX_COMPONENT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MODULE, SANDBOX_COMPONENT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(SANDBOX_PATH))
@@ -5409,9 +5373,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SANDBOX_PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PATH))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PATH)).attach(new TinkarBaseModel());
 
 
@@ -5434,9 +5398,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SANDBOX_PATH_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SANDBOX_MODULE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SANDBOX_MODULE)).attach(new TinkarBaseModel());
 
 
@@ -5459,9 +5423,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SEMANTIC_FIELD_CONCEPTS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCEPT_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCEPT_TYPE)).attach(new TinkarBaseModel());
 
 
@@ -5484,9 +5448,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SEMANTIC_FIELD_NAME.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -5509,9 +5473,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SEMANTIC_FIELD_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
 
@@ -5534,10 +5498,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SEMANTIC_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(REFERENCED_COMPONENT_NID_FOR_SEMANTIC, COMPONENT_FOR_SEMANTIC, LOGIC_GRAPH_FOR_SEMANTIC, SEMANTIC_FIELD_NAME)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -5560,10 +5524,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SEMANTIC_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(COMPONENT_SEMANTIC, CONCEPT_SEMANTIC, DESCRIPTION_SEMANTIC, LOGICAL_EXPRESSION_SEMANTIC, MEMBERSHIP_SEMANTIC)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
 
@@ -5586,9 +5550,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SIGNED_INTEGER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
 
@@ -5611,9 +5575,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SPANISH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
 
@@ -5636,9 +5600,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STANDARD_KOREAN_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(KOREAN_DIALECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(KOREAN_DIALECT)).attach(new TinkarBaseModel());
 
 
@@ -5661,9 +5625,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STATED_PREMISE_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(AXIOM_ORIGIN))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(AXIOM_ORIGIN)).attach(new TinkarBaseModel());
 
 
@@ -5686,9 +5650,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STATUS_FOR_VERSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
 
@@ -5711,10 +5675,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STATUS_VALUE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ACTIVE_STATE, CANCELED_STATE, INACTIVE_STATE, PRIMORDIAL_STATE, WITHDRAWN_STATE)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
 
@@ -5737,9 +5701,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STRING.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
 
@@ -5762,9 +5726,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SUFFICIENT_CONCEPT_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SUFFICIENT_CONCEPT_DEFINITION_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SUFFICIENT_CONCEPT_DEFINITION_OPERATOR)).attach(new TinkarBaseModel());
 
 
@@ -5787,10 +5751,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SUFFICIENT_CONCEPT_DEFINITION_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(SUFFICIENT_CONCEPT_DEFINITION, NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
 
@@ -5813,9 +5777,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SUFFICIENT_SET.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(EL_PLUS_PLUS_STATED_TERMINOLOGICAL_AXIOMS, EL_PLUS_PLUS_INFERRED_TERMINOLOGICAL_AXIOMS)).attach(new TinkarBaseModel());
 
 
@@ -5838,9 +5802,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SWEDISH_LANGUAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TEXT_FOR_DESCRIPTION))
@@ -5862,9 +5826,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TEXT_FOR_DESCRIPTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TIME_FOR_VERSION))
@@ -5886,9 +5850,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TIME_FOR_VERSION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(VERSION_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(VERSION_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TREE_AMALGAM_PROPERTIES))
@@ -5910,10 +5874,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TREE_AMALGAM_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(INVERSE_TREE_LIST, TREE_LIST)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TREE_LIST))
@@ -5935,9 +5899,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TREE_LIST.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TREE_AMALGAM_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TREE_AMALGAM_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(US_ENGLISH_DIALECT))
@@ -5959,10 +5923,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(US_ENGLISH_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(US_NURSING_DIALECT)
                         .parents(ENGLISH_DIALECT_ASSEMBLAGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ENGLISH_DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(US_NURSING_DIALECT))
@@ -5984,9 +5948,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(US_NURSING_DIALECT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(US_ENGLISH_DIALECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(US_ENGLISH_DIALECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UUID_DATA_TYPE))
@@ -6008,9 +5972,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UUID_DATA_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UUID_FIELD))
@@ -6032,9 +5996,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UUID_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UUID_LIST_FOR_COMPONENT))
@@ -6056,9 +6020,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UUID_LIST_FOR_COMPONENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CHRONICLE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CHRONICLE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UNCATEGORIZED_PHENOMENON))
@@ -6080,9 +6044,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UNCATEGORIZED_PHENOMENON.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PHENOMENON))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PHENOMENON)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UNINITIALIZED_COMPONENT))
@@ -6104,9 +6068,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UNINITIALIZED_COMPONENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UNIVERSAL_RESTRICTION))
@@ -6128,9 +6092,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UNIVERSAL_RESTRICTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ROLE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROLE_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UNIVERSALLY_UNIQUE_IDENTIFIER))
@@ -6152,9 +6116,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UNIVERSALLY_UNIQUE_IDENTIFIER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IDENTIFIER_SOURCE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IDENTIFIER_SOURCE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(USER))
@@ -6176,10 +6140,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(USER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(KOMET_USER, KOMET_USER_LIST, MODULE_FOR_USER, ORDER_FOR_AXIOM_ATTACHMENTS, ORDER_FOR_CONCEPT_ATTACHMENTS, ORDER_FOR_DESCRIPTION_ATTACHMENTS, PATH_FOR_USER, STARTER_DATA_AUTHORING)
                         .parents(ROOT_VERTEX))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VERSION_LIST_FOR_CHRONICLE))
@@ -6201,9 +6165,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VERSION_LIST_FOR_CHRONICLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CHRONICLE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CHRONICLE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VERSION_PROPERTIES))
@@ -6225,10 +6189,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VERSION_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(AUTHOR_FOR_VERSION, MODULE_FOR_VERSION, PATH_FOR_VERSION, STATUS_FOR_VERSION, TIME_FOR_VERSION, DESCRIPTION_VERSION_PROPERTIES)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VERTEX_FIELD))
@@ -6250,9 +6214,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VERTEX_FIELD.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DISPLAY_FIELDS))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DISPLAY_FIELDS)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VERTEX_STATE_SET))
@@ -6274,9 +6238,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VERTEX_STATE_SET.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VERTEX_SORT))
@@ -6298,9 +6262,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VERTEX_SORT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VIEW_COORDINATE_KEY))
@@ -6322,9 +6286,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VIEW_COORDINATE_KEY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(QUERY_CLAUSES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(QUERY_CLAUSES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(WITHDRAWN_STATE))
@@ -6346,9 +6310,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(WITHDRAWN_STATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(STATUS_VALUE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(STATUS_VALUE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BOOLEAN))
@@ -6370,9 +6334,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BOOLEAN.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(BYTE_ARRAY))
@@ -6394,9 +6358,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(BYTE_ARRAY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DESCRIPTION_LIST_FOR_CONCEPT))
@@ -6418,9 +6382,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DESCRIPTION_LIST_FOR_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DOUBLE))
@@ -6442,9 +6406,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DOUBLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FLOAT))
@@ -6466,9 +6430,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FLOAT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TinkarTerm.DECIMAL))
@@ -6490,9 +6454,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DECIMAL.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
 
@@ -6515,9 +6479,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LOGIC_GRAPH_FOR_SEMANTIC.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(SEMANTIC_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(SEMANTIC_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LONG))
@@ -6539,9 +6503,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LONG.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DYNAMIC_COLUMN_DATA_TYPES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DYNAMIC_COLUMN_DATA_TYPES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(NID))
@@ -6563,9 +6527,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(NID.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(SEMANTIC_LIST_FOR_CHRONICLE))
@@ -6587,9 +6551,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SEMANTIC_LIST_FOR_CHRONICLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CHRONICLE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CHRONICLE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(USERS_MODULE))
@@ -6611,9 +6575,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(USERS_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(MODULE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MODULE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ROOT_VERTEX))
@@ -6635,9 +6599,9 @@ public class TinkarStarterData {
                 .attach((new Identifier()
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER))
                         .identifier(ROOT_VERTEX.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .children(MODEL_CONCEPT, MEANING, OBJECT, ROLE, USER, ANNOTATION_TYPE, CREATIVE_COMMONS_BY_LICENSE, HEALTH_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
+                        .children(MODEL_CONCEPT, MEANING, OBJECT, TinkarTerm.ROLE, USER, ANNOTATION_TYPE, CREATIVE_COMMONS_BY_LICENSE, HEALTH_CONCEPT))
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROOT_VERTEX)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(QUERY_CLAUSES))
@@ -6659,10 +6623,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(QUERY_CLAUSES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(BOOLEAN_REFERENCE, VIEW_COORDINATE_KEY)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FIELD_SUBSTITUTION))
@@ -6684,10 +6648,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FIELD_SUBSTITUTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(BOOLEAN_SUBSTITUTION, CONCEPT_SUBSTITUTION, FLOAT_SUBSTITUTION, INSTANT_SUBSTITUTION)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TAXONOMY_OPERATOR))
@@ -6709,10 +6673,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TAXONOMY_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(LOGICALLY_EQUIVALENT_TO)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IMMUTABLECOORDINATE_PROPERTIES))
@@ -6734,10 +6698,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IMMUTABLECOORDINATE_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ALLOWED_STATES_FOR_STAMP_COORDINATE, AUTHORS_FOR_STAMP_COORDINATE, MODULE_EXCLUSION_SET_FOR_STAMP_COORDINATE, MODULE_PREFERENCE_LIST_FOR_STAMP_COORDINATE, MODULE_PREFERENCE_ORDER_FOR_STAMP_COORDINATE, MODULES_FOR_STAMP_COORDINATE, AUTHOR_FOR_EDIT_COORDINATE, DEFAULT_MODULE_FOR_EDIT_COORDINATE, DESTINATION_MODULE_FOR_EDIT_COORDINATE, MODULE_OPTIONS_FOR_EDIT_COORDINATE, PATH_OPTIONS_FOR_EDIT_CORDINATE, DESCRIPTION_LOGIC_PROFILE_FOR_LOGIC_COORDINATE, DIGRAPH_FOR_LOGIC_COORDINATE, ROOT_FOR_LOGIC_COORDINATE, DESCRIPTION_TYPE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE, LANGUAGE_NID_FOR_LANGUAGE_COORDINATE, LANGUAGE_SPECIFICATION_FOR_LANGUAGE_COORDINATE, MODULE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE, PATH_FOR_PATH_COORDINATE, PATH_ORIGINS_FOR_STAMP_PATH, VERTEX_SORT, VERTEX_STATE_SET, STATED_ASSEMBLAGE_FOR_LOGIC_COORDINATE, INFERRED_ASSEMBLAGE_FOR_LOGIC_COORDINATE, CLASSIFIER_FOR_LOGIC_COORDINATE, POSITION_ON_PATH)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PURPOSE))
@@ -6759,9 +6723,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PURPOSE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ACTION_PROPERTIES))
@@ -6783,12 +6747,11 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(ACTION_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(CONCEPT_CONSTRAINTS, CONCEPT_TO_FIND, ROLE_TYPE_TO_ADD, CONDITIONAL_TRIGGERS)
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
-
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LITERAL_VALUE))
                 .attach((FullyQualifiedName fqn) -> fqn
@@ -6809,10 +6772,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LITERAL_VALUE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(BOOLEAN_LITERAL, FLOAT_LITERAL, INSTANT_LITERAL)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
 
@@ -6835,10 +6798,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DIALECT_ASSEMBLAGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(CZECH_DIALECT, ENGLISH_DIALECT_ASSEMBLAGE, FRENCH_DIALECT, IRISH_DIALECT, KOREAN_DIALECT, POLISH_DIALECT, RUSSIAN_DIALECT)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -6861,10 +6824,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DYNAMIC_COLUMN_DATA_TYPES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(ARRAY, BOOLEAN, BYTE_ARRAY, DOUBLE, FLOAT, LONG, SIGNED_INTEGER, STRING, UUID_DATA_TYPE, DECIMAL)
                         .parents(MEANING))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(MEANING)).attach(new TinkarBaseModel());
 
         // TODO: Get coordinates to work via Komet's KometTerm
@@ -6887,9 +6850,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(POSITION_ON_PATH.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(STATED_ASSEMBLAGE_FOR_LOGIC_COORDINATE))
@@ -6911,9 +6874,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STATED_ASSEMBLAGE_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INFERRED_ASSEMBLAGE_FOR_LOGIC_COORDINATE))
@@ -6935,9 +6898,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INFERRED_ASSEMBLAGE_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE))
@@ -6959,9 +6922,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(CLASSIFIER_FOR_LOGIC_COORDINATE))
@@ -6983,9 +6946,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CLASSIFIER_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(IMMUTABLECOORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(IMMUTABLECOORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE))
@@ -7007,9 +6970,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(LANGUAGE_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(LANGUAGE_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(SOLOR_OVERLAY_MODULE))
@@ -7031,9 +6994,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SOLOR_OVERLAY_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(SOLOR_MODULE))
@@ -7055,9 +7018,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SOLOR_MODULE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(TRANSITIVE_PROPERTY))
@@ -7079,9 +7042,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TRANSITIVE_PROPERTY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(REFLEXIVE_PROPERTY))
@@ -7103,9 +7066,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFLEXIVE_PROPERTY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(LATERALITY))
@@ -7127,9 +7090,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(LATERALITY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(HAS_ACTIVE_INGREDIENT))
@@ -7151,9 +7114,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(HAS_ACTIVE_INGREDIENT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(HAS_DOSE_FORM))
@@ -7175,9 +7138,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(HAS_DOSE_FORM.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(UNMODELED_ROLE_CONCEPT))
@@ -7199,9 +7162,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(UNMODELED_ROLE_CONCEPT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DYNAMIC_REFERENCED_COMPONENT_RESTRICTION))
@@ -7223,9 +7186,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EXISTENTIAL_RESTRICTION))
@@ -7247,9 +7210,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EXISTENTIAL_RESTRICTION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(ROLE_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(ROLE_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INTRINSIC_ROLE))
@@ -7271,9 +7234,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INTRINSIC_ROLE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PROPERTY_PATTERN_IMPLICATION))
@@ -7295,9 +7258,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PROPERTY_PATTERN_IMPLICATION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(SNOROCKET_CLASSIFIER))
@@ -7319,9 +7282,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(SNOROCKET_CLASSIFIER.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PROPERTY_SET))
@@ -7343,9 +7306,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PROPERTY_SET.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(FEATURE))
@@ -7367,9 +7330,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FEATURE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(EXAMPLE_UCUM_UNITS))
@@ -7394,9 +7357,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(EXAMPLE_UCUM_UNITS.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(PHENOMENON))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(PHENOMENON)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INFERRED_DEFINITION))
@@ -7418,9 +7381,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(INFERRED_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(IDENTIFIER_VALUE))
@@ -7442,9 +7405,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(IDENTIFIER_VALUE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MAXIMUM_VALUE_OPERATOR))
@@ -7466,9 +7429,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MAXIMUM_VALUE_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MINIMUM_VALUE_OPERATOR))
@@ -7490,9 +7453,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MINIMUM_VALUE_OPERATOR.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(CONCRETE_DOMAIN_OPERATOR))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(CONCRETE_DOMAIN_OPERATOR)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(REFERENCE_RANGE))
@@ -7514,10 +7477,10 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFERENCE_RANGE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .children(REFERENCE_RANGE_MAXIMUM, REFERENCE_RANGE_MINIMUM)
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -7540,9 +7503,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFERENCE_RANGE_MAXIMUM.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(REFERENCE_RANGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(REFERENCE_RANGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(REFERENCE_RANGE_MINIMUM))
@@ -7564,9 +7527,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(REFERENCE_RANGE_MINIMUM.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(REFERENCE_RANGE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(REFERENCE_RANGE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(STATED_DEFINITION))
@@ -7588,9 +7551,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(STATED_DEFINITION.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VALUE_CONSTRAINT))
@@ -7612,9 +7575,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VALUE_CONSTRAINT.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(VALUE_CONSTRAINT_SOURCE))
@@ -7636,9 +7599,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(VALUE_CONSTRAINT_SOURCE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(TINKAR_MODEL_CONCEPT))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(TINKAR_MODEL_CONCEPT)).attach(new TinkarBaseModel());
 
 
@@ -7662,9 +7625,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(FEATURE_TYPE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PROPERTY_SEQUENCE))
@@ -7687,9 +7650,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(PROPERTY_SEQUENCE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(STATED_NAVIGATION))
@@ -7711,9 +7674,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(INFERRED_NAVIGATION))
@@ -7735,9 +7698,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(DESCRIPTION_TYPE))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(DESCRIPTION_TYPE)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ANNOTATION_PROPERTY_SET))
@@ -7759,9 +7722,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TRANSITIVE_PROPERTY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(DATA_PROPERTY_SET))
@@ -7783,9 +7746,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TRANSITIVE_PROPERTY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PROPERTY_SEQUENCE_IMPLICATION))
@@ -7807,9 +7770,9 @@ public class TinkarStarterData {
                 .attach((Identifier identifier) -> identifier
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(TRANSITIVE_PROPERTY.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
+                .attach((StatedNavigation statedNavigation) -> statedNavigation
                         .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
+                .attach((StatedAxiom statedAxiom) -> statedAxiom
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
     }
 
@@ -8185,25 +8148,5 @@ public class TinkarStarterData {
 
     private USDialect usDialect() {
         return new USDialect().acceptability(PREFERRED);
-    }
-
-    private void exportToProtoBuf() {
-        try {
-            new ExportEntitiesController().export(exportFile).get();
-        } catch (ExecutionException | InterruptedException e) {
-            LOG.error("Error while exporting.", e);
-        }
-    }
-
-    public void execute() {
-        init();
-        transform();
-        exportToProtoBuf();
-        cleanup();
-    }
-
-    public static void main(String[] args) {
-        TinkarStarterData starterData = new TinkarStarterData(args);
-        starterData.execute();
     }
 }
