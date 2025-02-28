@@ -175,6 +175,9 @@
 									<includes>
 										<include>**</include>
 									</includes>
+									<excludes>
+										<exclude>lucene/**</exclude>
+									</excludes>
 								</fileSet>
 							</fileSets>
 							<includeBaseDirectory>false</includeBaseDirectory>
