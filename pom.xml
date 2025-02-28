@@ -11,7 +11,7 @@
 
     <groupId>dev.ikm.maven.tinkar</groupId>
     <artifactId>tinkar-data-parent</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
     <name>Tinkar Data</name>
     <description>Tinkar Data Project</description>
     <packaging>pom</packaging>
@@ -36,15 +36,52 @@
         <log4j.version>3.0.0-alpha1</log4j.version>
         <slf4j.version>2.0.13</slf4j.version>
         <!-- Properties Definition -->
-        <tinkar-data-properties.groupId>dev.ikm.maven.tinkar</tinkar-data-properties.groupId>
-        <tinkar-data-properties.artifactId>tinkar-starter-data-properties</tinkar-data-properties.artifactId>
+        <tinkar-starter-data-properties.groupId>dev.ikm.maven.tinkar</tinkar-starter-data-properties.groupId>
+        <tinkar-starter-data-properties.artifactId>tinkar-starter-data-properties</tinkar-starter-data-properties.artifactId>
         <data-artifact-deploy-url>file:${project.build.directory}/local_deploy_repo/release</data-artifact-deploy-url>
     </properties>
 
     <modules>
         <module>tinkar-data-maven-plugin</module>
-        <module>tinkar-data-pipeline</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <!-- Include tinkar starter data module by default (i.e., if other profiles are not activated) -->
+            <id>include-tinkar-stater-data-module</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>tinkar-starter-data-pipeline</module>
+            </modules>
+        </profile>
+        <profile>
+            <!-- When example data properties are supplied, include tinkar example data module instead -->
+            <id>include-tinkar-example-data-module</id>
+            <activation>
+                <property>
+                    <name>tinkar-example-data-properties.version</name>
+                </property>
+            </activation>
+            <modules>
+                <module>tinkar-example-data-pipeline</module>
+            </modules>
+        </profile>
+        <profile>
+            <!-- Include all child module(s) when the parent version is changed -->
+            <id>update-parent-version</id>
+            <activation>
+                <property>
+                    <name>newVersion</name>
+                </property>
+            </activation>
+            <modules>
+                <module>tinkar-starter-data-pipeline</module>
+                <module>tinkar-example-data-pipeline</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <url>http://www.ikm.dev</url>
 
