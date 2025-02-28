@@ -22,6 +22,7 @@
 		<tinkar-example-data-properties.groupId>dev.ikm.maven.tinkar</tinkar-example-data-properties.groupId>
 		<tinkar-example-data-properties.artifactId>tinkar-example-data-properties</tinkar-example-data-properties.artifactId>
 		<tinkar-starter-data.classifier>unreasoned-sa</tinkar-starter-data.classifier>
+		<maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
 	</properties>
 
 	<distributionManagement>
@@ -101,22 +102,22 @@
 					</execution>
 				</executions>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>dev.ikm.maven.tinkar</groupId>-->
-<!--				<artifactId>tinkar-data-maven-plugin</artifactId>-->
-<!--				<executions>-->
-<!--					&lt;!&ndash; Load starter data into data store &ndash;&gt;-->
-<!--					<execution>-->
-<!--						<id>generate-tinkar-example-data</id>-->
-<!--						<goals>-->
-<!--							<goal>generate-example-data</goal>-->
-<!--						</goals>-->
-<!--						<configuration>-->
-<!--							<dataStore>${project.build.directory}/${tinkar-starter-data.artifactId}-${tinkar-starter-data.version}-${tinkar-starter-data.classifier}</dataStore>-->
-<!--						</configuration>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
+			<plugin>
+				<groupId>dev.ikm.maven.tinkar</groupId>
+				<artifactId>tinkar-data-maven-plugin</artifactId>
+				<executions>
+					<!-- Load starter data into data store -->
+					<execution>
+						<id>generate-tinkar-example-data</id>
+						<goals>
+							<goal>generate-example-data</goal>
+						</goals>
+						<configuration>
+							<dataStore>${project.build.directory}/${tinkar-starter-data.artifactId}-${tinkar-starter-data.version}-${tinkar-starter-data.classifier}</dataStore>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>dev.ikm.maven.tinkar</groupId>
 				<artifactId>tinkar-maven-plugin</artifactId>
@@ -131,7 +132,7 @@
 						<configuration>
 							<dataStore>${project.build.directory}/${tinkar-starter-data.artifactId}-${tinkar-starter-data.version}-${tinkar-starter-data.classifier}</dataStore>
 							<exportDirectory>${project.build.directory}</exportDirectory>
-							<fileName>${data-artifact.artifactId}-${data-artifact.version}-unreasoned-pb.zip</fileName>
+							<fileName>${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-unreasoned-pb.zip</fileName>
 						</configuration>
 					</execution>
 					<!-- Run full reasoner starter data -->
@@ -153,7 +154,7 @@
 						<configuration>
 							<dataStore>${project.build.directory}/${tinkar-starter-data.artifactId}-${tinkar-starter-data.version}-${tinkar-starter-data.classifier}</dataStore>
 							<exportDirectory>${project.build.directory}</exportDirectory>
-							<fileName>${data-artifact.artifactId}-${data-artifact.version}-reasoned-pb.zip</fileName>
+							<fileName>${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-reasoned-pb.zip</fileName>
 						</configuration>
 					</execution>
 				</executions>
@@ -162,7 +163,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<finalName>${data-artifact.artifactId}-${data-artifact.version}</finalName>
+					<finalName>${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}</finalName>
 					<attach>false</attach>
 					<inlineDescriptors>
 						<inlineDescriptor>
@@ -198,7 +199,7 @@
 									<id>unreasoned-sa</id>
 									<fileSets>
 										<fileSet>
-											<outputDirectory>${data-artifact.artifactId}-${data-artifact.version}-${tinkar-starter-data.classifier}</outputDirectory>
+											<outputDirectory>${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-unreasoned-sa</outputDirectory>
 										</fileSet>
 									</fileSets>
 								</inlineDescriptor>
@@ -218,7 +219,7 @@
 									<id>reasoned-sa</id>
 									<fileSets>
 										<fileSet>
-											<outputDirectory>${data-artifact.artifactId}-${data-artifact.version}-reasoned-sa</outputDirectory>
+											<outputDirectory>${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-reasoned-sa</outputDirectory>
 										</fileSet>
 									</fileSets>
 								</inlineDescriptor>
@@ -234,7 +235,7 @@
 				<configuration>
 					<groupId>${data-artifact.groupId}</groupId>
 					<artifactId>${data-artifact.artifactId}</artifactId>
-					<version>${data-artifact.version}+${project.version}</version>
+					<version>${data-artifact.version}+${project.version}-${maven.build.timestamp}</version>
 					<pomFile>${project.basedir}/pom.xml</pomFile>
 				</configuration>
 				<executions>
@@ -256,7 +257,7 @@
 							<goal>install-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-unreasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-unreasoned-sa.zip</file>
 							<classifier>unreasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -267,7 +268,7 @@
 						</goals>
 						<phase>install</phase>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-reasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-reasoned-sa.zip</file>
 							<classifier>reasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -278,7 +279,7 @@
 						</goals>
 						<phase>install</phase>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-unreasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-unreasoned-pb.zip</file>
 							<classifier>unreasoned-pb</classifier>
 						</configuration>
 					</execution>
@@ -289,7 +290,7 @@
 						</goals>
 						<phase>install</phase>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-reasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-reasoned-pb.zip</file>
 							<classifier>reasoned-pb</classifier>
 						</configuration>
 					</execution>
@@ -303,7 +304,7 @@
 					<url>${data-artifact-deploy-url}</url>
 					<groupId>${data-artifact.groupId}</groupId>
 					<artifactId>${data-artifact.artifactId}</artifactId>
-					<version>${data-artifact.version}+${project.version}</version>
+					<version>${data-artifact.version}+${project.version}-${maven.build.timestamp}</version>
 					<pomFile>${project.basedir}/pom.xml</pomFile>
 				</configuration>
 				<executions>
@@ -325,7 +326,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-unreasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-unreasoned-sa.zip</file>
 							<classifier>unreasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -336,7 +337,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-reasoned-sa.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-reasoned-sa.zip</file>
 							<classifier>reasoned-sa</classifier>
 						</configuration>
 					</execution>
@@ -347,7 +348,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-unreasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-unreasoned-pb.zip</file>
 							<classifier>unreasoned-pb</classifier>
 						</configuration>
 					</execution>
@@ -358,7 +359,7 @@
 							<goal>deploy-file</goal>
 						</goals>
 						<configuration>
-							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}-reasoned-pb.zip</file>
+							<file>${project.build.directory}/${data-artifact.artifactId}-${data-artifact.version}+${project.version}-${maven.build.timestamp}-reasoned-pb.zip</file>
 							<classifier>reasoned-pb</classifier>
 						</configuration>
 					</execution>
