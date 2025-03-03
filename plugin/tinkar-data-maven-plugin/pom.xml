@@ -19,7 +19,7 @@
     <name>tinkar-data-maven-plugin</name>
 
     <properties>
-    	<tinkar-core.version>1.87.0-SNAPSHOT</tinkar-core.version>
+    	<tinkar-core.version>1.88.0-SNAPSHOT</tinkar-core.version>
     </properties>
 
     <url>http://maven.apache.org</url>
