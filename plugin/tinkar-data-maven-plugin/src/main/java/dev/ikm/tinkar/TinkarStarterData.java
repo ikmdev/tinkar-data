@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static dev.ikm.tinkar.terms.TinkarTerm.*;
@@ -41,6 +42,8 @@ public class TinkarStarterData {
 
     private final File exportFile;
     private final File datastore;
+
+    private final EntityProxy.Concept[] EMPTY_ARRAY = {};
 
     public TinkarStarterData(String[] args) {
         datastore = new File(args[0]);
@@ -61,6 +64,8 @@ public class TinkarStarterData {
         PrimitiveData.stop();
     }
 
+    private EntityProxy.Concept SAMPLE_TINKAR_DATA;
+
     private void transform() {
         EntityService.get().beginLoadPhase();
         try {
@@ -77,11 +82,169 @@ public class TinkarStarterData {
             createPathMembershipSemantics(session);
             addPathOriginSemantics(session);
 
+            /****JTD: ONE_CHILD ce48467f-5ad2-5d77-b40b-9f5625e7d223
+             ***JTD: TWO_CHILDREN 84dff49f-7d24-5eb7-90bb-c887a48cc1d4
+             ***JTD: ONE_GRANDCHILD 9f6d9ff5-7576-56aa-abd4-61ecc69371b8
+             ***JTD: TWO_GRANDCHILDREN 33bc5aba-fdee-5d0e-9792-0e448cd21ae0
+             ***JTD: THREE_GRANDCHILDREN 2dbcc34c-536c-5f77-adf0-763529cdce7a
+             ***JTD: ONE_PARENT 7ce9f45c-e747-5dd4-8362-83a743adeee8
+             ***JTD: MULTIPLE_PARENTS f015e6cd-6472-508d-b1c6-83aa5180d7ea
+             ***JTD: ONE_SHARED_GRANDPARENT 45e7ae66-9708-56dd-809c-91cc123752cd
+             ***JTD: MULTIPLE_GREAT_GRANDPARENTS efa8c5ad-c864-5ad3-a619-7c3eb5199ff4
+             ***JTD: ONE_SHARED_GREAT_GRANDPARENT 11609d30-10fe-5ad5-9f55-2c4e5a627c2a
+             ***JTD: MULTIPLE_GREAT_GREAT_GRANDPARENTS 13e61798-1559-5a61-ad97-b296a8888d22
+             ***JTD: ONE_GREAT_GREAT_GREAT_GRANDPARENT d69efb9d-71c3-5e24-b1bb-50e90db0e669
+             ***JTD: MULTIPLE_GREAT_GREAT_GREAT_GRANDPARENTS dfc474c2-44fd-554c-9f95-a52ad6ef3d27
+             ***JTD: ONE_GREAT_GREAT_GREAT_GREAT_GRANDPARENT 4ed10a30-83aa-568b-8c6c-8a9fcdc2eb13
+             ***JTD: MULTIPLE_GREAT_GREAT_GREAT_GREAT_GRANDPARENTS 5b43d257-ccb7-577e-9e22-8370203472d1
+             */
+            createOneChild(session);
+            createTwoChildren(session);
+            createOneGrandchild(session);
+            createTwoGrandchildren(session);
+            createThreeGrandchildren(session);
+
+
             composer.commitSession(session);
         } finally {
             EntityService.get().endLoadPhase();
         }
     }
+
+    // Child1 does not show up in komet while navigating concepts. The other tests concept relationships seem fine.
+    private void createOneChild(Session session) {
+        EntityProxy.Concept child = createConcept(session, "Child1", "ce48467f-5ad2-5d77-b40b-9f5625e7d224", EMPTY_ARRAY, EMPTY_ARRAY);
+        EntityProxy.Concept parent = createConcept(session, "Parent1", "ce48467f-5ad2-5d77-b40b-9f5625e7d223", new EntityProxy.Concept[]{child}, new EntityProxy.Concept[]{TINKAR_MODEL_CONCEPT});
+    }
+
+    private void createTwoChildren(Session session) {
+        EntityProxy.Concept parent = createConcept(session, "Parent2", "84dff49f-7d24-5eb7-90bb-c887a48cc1d4");
+        createConcept(session, "Child2_1", "84dff49f-7d24-5eb7-90bb-c887a48cc1d5", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+        createConcept(session, "Child2_2", "84dff49f-7d24-5eb7-90bb-c887a48cc1d6", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+    }
+
+    private void createOneGrandchild(Session session) {
+        EntityProxy.Concept grandparent = createConcept(session, "Grandparent3", "9f6d9ff5-7576-56aa-abd4-61ecc69371b8");
+        EntityProxy.Concept parent = createConcept(session, "Child3_1", "9f6d9ff5-7576-56aa-abd4-61ecc69371b8", EMPTY_ARRAY, new EntityProxy.Concept[]{grandparent});
+        createConcept(session, "Child3_2", "9f6d9ff5-7576-56aa-abd4-61ecc69371b9", EMPTY_ARRAY, new EntityProxy.Concept[]{grandparent});
+        createConcept(session, "Grandchild3", "9f6d9ff5-7576-56aa-abd4-61ecc69371b0", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+    }
+
+    private void createTwoGrandchildren(Session session) {
+        EntityProxy.Concept grandparent = createConcept(session, "Grandparent4", "33bc5aba-fdee-5d0e-9792-0e448cd21ae0");
+        EntityProxy.Concept parent = createConcept(session, "Child4_1", "33bc5aba-fdee-5d0e-9792-0e448cd21ae1", EMPTY_ARRAY, new EntityProxy.Concept[]{grandparent});
+        createConcept(session, "Child4_2", "33bc5aba-fdee-5d0e-9792-0e448cd21ae2", EMPTY_ARRAY, new EntityProxy.Concept[]{grandparent});
+        createConcept(session, "Grandchild4_1", "33bc5aba-fdee-5d0e-9792-0e448cd21ae3", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+        createConcept(session, "Grandchild4_2", "33bc5aba-fdee-5d0e-9792-0e448cd21ae4", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+    }
+
+    private void createThreeGrandchildren(Session session) {
+        EntityProxy.Concept grandparent = createConcept(session, "Grandparent5", "2dbcc34c-536c-5f77-adf0-763529cdce7a");
+        EntityProxy.Concept parent = createConcept(session, "Child5_1", "2dbcc34c-536c-5f77-adf0-763529cdce7b", EMPTY_ARRAY, new EntityProxy.Concept[]{grandparent});
+        EntityProxy.Concept parent2 = createConcept(session, "Child5_2", "2dbcc34c-536c-5f77-adf0-763529cdce7c", EMPTY_ARRAY, new EntityProxy.Concept[]{grandparent});
+        createConcept(session, "Grandchild5_1", "2dbcc34c-536c-5f77-adf0-763529cdce7d", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+        createConcept(session, "Grandchild5_2", "2dbcc34c-536c-5f77-adf0-763529cdce7e", EMPTY_ARRAY, new EntityProxy.Concept[]{parent});
+        createConcept(session, "Grandchild5_3", "2dbcc34c-536c-5f77-adf0-763529cdce7f", EMPTY_ARRAY, new EntityProxy.Concept[]{parent2});
+    }
+
+    private EntityProxy.Concept createConcept(Session session, String description, String uuidStr) {
+        return createConcept(session, description, uuidStr, EMPTY_ARRAY, new EntityProxy.Concept[]{TINKAR_MODEL_CONCEPT});
+    }
+
+    private EntityProxy.Concept createConcept(Session session, String description, String uuidStr, EntityProxy.Concept[] children, EntityProxy.Concept[] parents) {
+        EntityProxy.Concept concept = EntityProxy.Concept.make(description, UUID.fromString(uuidStr));
+        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(concept))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text(description)
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .attach(usDialect()))
+                .attach((Synonym synonym) -> synonym
+                        .text(description)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(usDialect()))
+                .attach((Definition definition) -> definition
+                        .text(description)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(usDialect()))
+                .attach((Identifier identifier) -> identifier
+                        .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
+                        .identifier(concept.asUuidArray()[0].toString()))
+                /*.attach(new StatedNavigation()
+                        .children(children)
+                        .parents(parents))
+                .attach(new StatedAxiom()
+                        .isA(parents))*/.attach(new TinkarBaseModel());
+
+        if (children.length > 0 || parents.length > 0) {
+            session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(concept))
+                    .attach(new StatedNavigation()
+                            .children(children)
+                            .parents(parents));
+
+        }
+        if (parents.length > 0) {
+            session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(concept))
+                    .attach(new StatedAxiom()
+                            .isA(parents)).attach(new TinkarBaseModel());
+        }
+        return concept;
+        /*EntityProxy.Concept concept = EntityProxy.Concept.make(description, UUID.fromString(uuidStr));
+        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(concept))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text(concept.description())
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .attach(usDialect()))
+                .attach((Synonym synonym) -> synonym
+                        .text(concept.description())
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(usDialect()))
+                .attach((Definition definition) -> definition
+                        .text(concept.description())
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(usDialect()))
+                .attach((Identifier identifier) -> identifier
+                        .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
+                        .identifier(concept.asUuidArray()[0].toString()))
+                .attach(new StatedNavigation()
+                        .parents(parent))
+                .attach(new StatedAxiom()
+                        .isA(parent)).attach(new TinkarBaseModel());
+
+        return concept;*/
+    }
+
+    /* This renders well in Komet, navigate to Model concept -> Tinkar Model concept -> Dialect -> English dialect
+            session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ENGLISH_DIALECT_ASSEMBLAGE))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("English Dialect")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .attach(usDialect()))
+                .attach((Synonym synonym) -> synonym
+                        .text("English dialect")
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(usDialect()))
+                .attach((Definition definition) -> definition
+                        .text("Specifies the dialect of the English language")
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(usDialect()))
+                .attach((Identifier identifier) -> identifier
+                        .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
+                        .identifier(ENGLISH_DIALECT_ASSEMBLAGE.asUuidArray()[0].toString()))
+                .attach(new StatedNavigation()
+                        .children(GB_ENGLISH_DIALECT, US_ENGLISH_DIALECT)
+                        .parents(DIALECT_ASSEMBLAGE))
+                .attach(new StatedAxiom()
+                        .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());*/
+
 
     private void createConcepts(Session session) {
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ENGLISH_DIALECT_ASSEMBLAGE))
@@ -8198,7 +8361,7 @@ public class TinkarStarterData {
     public void execute() {
         init();
         transform();
-        exportToProtoBuf();
+        //exportToProtoBuf();
         cleanup();
     }
 

@@ -6,6 +6,7 @@ import dev.ikm.tinkar.common.service.CachingService;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.service.ServiceKeys;
 import dev.ikm.tinkar.common.service.ServiceProperties;
+import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
@@ -17,6 +18,7 @@ import dev.ikm.tinkar.composer.template.Identifier;
 import dev.ikm.tinkar.composer.template.StatedAxiom;
 import dev.ikm.tinkar.composer.template.StatedNavigation;
 import dev.ikm.tinkar.composer.template.Synonym;
+import dev.ikm.tinkar.composer.template.TinkarBaseModel;
 import dev.ikm.tinkar.composer.template.USDialect;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.entity.export.ExportEntitiesController;
@@ -27,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -91,8 +95,58 @@ public class TinkarExampleData {
     private void createData() {
         SAMPLE_TINKAR_DATA = createConcept("Tinkar Sample Data", "67af3d9d-2d32-4036-9861-c052f3174134", TINKAR_MODEL_CONCEPT);
 
-        createPatternOne();
-        createPatternTwo();
+
+        String oneChild = "ONE_CHILD";
+        String twoChildren = "TWO_CHILDREN";
+        String oneGrandchild = "ONE_GRANDCHILD";
+        String twoGrandchildren = "TWO_GRANDCHILDREN";
+        String threeGrandchildren = "THREE_GRANDCHILDREN";
+        String oneParent = "ONE_PARENT";
+        String multipleParents = "MULTIPLE_PARENTS";
+        String oneSharedGrandparent = "ONE_SHARED_GRANDPARENT";
+        String multipleGreatGrandparents = "MULTIPLE_GREAT_GRANDPARENTS";
+        String oneSharedGreatGrandparent = "ONE_SHARED_GREAT_GRANDPARENT";
+        String multipleGreatGreatGrandparents = "MULTIPLE_GREAT_GREAT_GRANDPARENTS";
+        String oneGreatGreatGreatGrandparent = "ONE_GREAT_GREAT_GREAT_GRANDPARENT";
+        String multipleGreatGreatGreatGrandparents = "MULTIPLE_GREAT_GREAT_GREAT_GRANDPARENTS";
+        String oneGreatGreatGreatGreatGrandparent = "ONE_GREAT_GREAT_GREAT_GREAT_GRANDPARENT";
+        String multipleGreatGreatGreatGreatGrandparents = "MULTIPLE_GREAT_GREAT_GREAT_GREAT_GRANDPARENTS";
+        List<String> list = new ArrayList();
+        list.add(oneChild);
+        list.add(twoChildren);
+        list.add(oneGrandchild);
+        list.add(twoGrandchildren);
+        list.add(threeGrandchildren);
+        list.add(oneParent);
+        list.add(multipleParents);
+        list.add(oneSharedGrandparent);
+        list.add(multipleGreatGrandparents);
+        list.add(oneSharedGreatGrandparent);
+        list.add(multipleGreatGreatGrandparents);
+        list.add(oneGreatGreatGreatGrandparent);
+        list.add(multipleGreatGreatGreatGrandparents);
+        list.add(oneGreatGreatGreatGreatGrandparent);
+        list.add(multipleGreatGreatGreatGreatGrandparents);
+        list.forEach(l -> System.out.println("***JTD: " + l + " " + UuidT5Generator.get(l)));
+        /****JTD: ONE_CHILD ce48467f-5ad2-5d77-b40b-9f5625e7d223
+         ***JTD: TWO_CHILDREN 84dff49f-7d24-5eb7-90bb-c887a48cc1d4
+         ***JTD: ONE_GRANDCHILD 9f6d9ff5-7576-56aa-abd4-61ecc69371b8
+         ***JTD: TWO_GRANDCHILDREN 33bc5aba-fdee-5d0e-9792-0e448cd21ae0
+         ***JTD: THREE_GRANDCHILDREN 2dbcc34c-536c-5f77-adf0-763529cdce7a
+         ***JTD: ONE_PARENT 7ce9f45c-e747-5dd4-8362-83a743adeee8
+         ***JTD: MULTIPLE_PARENTS f015e6cd-6472-508d-b1c6-83aa5180d7ea
+         ***JTD: ONE_SHARED_GRANDPARENT 45e7ae66-9708-56dd-809c-91cc123752cd
+         ***JTD: MULTIPLE_GREAT_GRANDPARENTS efa8c5ad-c864-5ad3-a619-7c3eb5199ff4
+         ***JTD: ONE_SHARED_GREAT_GRANDPARENT 11609d30-10fe-5ad5-9f55-2c4e5a627c2a
+         ***JTD: MULTIPLE_GREAT_GREAT_GRANDPARENTS 13e61798-1559-5a61-ad97-b296a8888d22
+         ***JTD: ONE_GREAT_GREAT_GREAT_GRANDPARENT d69efb9d-71c3-5e24-b1bb-50e90db0e669
+         ***JTD: MULTIPLE_GREAT_GREAT_GREAT_GRANDPARENTS dfc474c2-44fd-554c-9f95-a52ad6ef3d27
+         ***JTD: ONE_GREAT_GREAT_GREAT_GREAT_GRANDPARENT 4ed10a30-83aa-568b-8c6c-8a9fcdc2eb13
+         ***JTD: MULTIPLE_GREAT_GREAT_GREAT_GREAT_GRANDPARENTS 5b43d257-ccb7-577e-9e22-8370203472d1
+         */
+        /*createPatternOne();
+        createPatternTwo();*/
+        //createOneChild();
     }
 
     private void createPatternOne() {
@@ -229,6 +283,11 @@ public class TinkarExampleData {
                 )));
     }
 
+    private void createOneChild() {
+        EntityProxy.Concept parent = createConcept("Parent", "ce48467f-5ad2-5d77-b40b-9f5625e7d223");
+        EntityProxy.Concept child = createConcept("Child", "ce48467f-5ad2-5d77-b40b-9f5625e7d224", parent);
+    }
+
     private EntityProxy.Concept createConcept(String description, String uuidStr) {
         return createConcept(description, uuidStr, SAMPLE_TINKAR_DATA);
     }
@@ -257,10 +316,36 @@ public class TinkarExampleData {
                 .attach(new StatedNavigation()
                         .parents(parent))
                 .attach(new StatedAxiom()
-                        .isA(parent));
+                        .isA(parent)).attach(new TinkarBaseModel());
+
         return concept;
     }
 
+    /*        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(ENGLISH_DIALECT_ASSEMBLAGE))
+                    .attach((FullyQualifiedName fqn) -> fqn
+                            .text("English Dialect")
+                            .language(ENGLISH_LANGUAGE)
+                            .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                            .attach(usDialect()))
+                    .attach((Synonym synonym) -> synonym
+                            .text("English dialect")
+                            .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                            .language(ENGLISH_LANGUAGE)
+                            .attach(usDialect()))
+                    .attach((Definition definition) -> definition
+                            .text("Specifies the dialect of the English language")
+                            .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                            .language(ENGLISH_LANGUAGE)
+                            .attach(usDialect()))
+                    .attach((Identifier identifier) -> identifier
+                            .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
+                            .identifier(ENGLISH_DIALECT_ASSEMBLAGE.asUuidArray()[0].toString()))
+                    .attach(new StatedNavigation()
+                            .children(GB_ENGLISH_DIALECT, US_ENGLISH_DIALECT)
+                            .parents(DIALECT_ASSEMBLAGE))
+                    .attach(new StatedAxiom()
+                            .isA(DIALECT_ASSEMBLAGE)).attach(new TinkarBaseModel());
+    */
     private USDialect usDialect() {
         return new USDialect().acceptability(PREFERRED);
     }
@@ -280,7 +365,7 @@ public class TinkarExampleData {
     public void execute() {
         init();
         transform();
-        exportToProtoBuf();
+        //exportToProtoBuf();
         cleanup();
     }
 
