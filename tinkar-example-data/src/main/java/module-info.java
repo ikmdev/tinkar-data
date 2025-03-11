@@ -1,4 +1,4 @@
-open module tinkar.starter.data {
+open module dev.ikm.tinkar {
     requires dev.ikm.tinkar.common;
     requires dev.ikm.tinkar.composer;
     requires dev.ikm.tinkar.entity;

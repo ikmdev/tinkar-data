@@ -18,7 +18,7 @@
     </modules>
     
     <properties>
-    	<tinkar-core.version>1.88.0-SNAPSHOT</tinkar-core.version>
+    	<tinkar-core.version>1.91.0-SNAPSHOT</tinkar-core.version>
     </properties>
 
 

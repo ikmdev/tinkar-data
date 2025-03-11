@@ -6,7 +6,7 @@
     <parent>
         <groupId>dev.ikm.maven.tinkar</groupId>
         <artifactId>tinkar-data-bom</artifactId>
-        <version>1.9.0-SNAPSHOT</version>
+        <version>1.11.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -58,7 +58,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>${maven-plugin-plugin.version}}</version>
+                    <version>${maven-deploy-plugin.version}}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
