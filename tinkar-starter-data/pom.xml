@@ -8,7 +8,7 @@
     <parent>
         <groupId>dev.ikm.tinkar</groupId>
         <artifactId>tinkar-data</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.7.0-IKDT-700-update-tinkar-data-bom-version-SNAPSHOT</version>
     </parent>
 
     <artifactId>tinkar-starter-data</artifactId>
@@ -22,7 +22,7 @@
             <plugin>
                 <groupId>dev.ikm.tinkar</groupId>
                 <artifactId>tinkar-data-maven-plugin</artifactId>
-                <version>1.7.0-SNAPSHOT</version>
+                <version>1.7.0-IKDT-700-update-tinkar-data-bom-version-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>load-data</id>
