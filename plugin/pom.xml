@@ -4,7 +4,7 @@
     <parent>
         <groupId>dev.ikm.tinkar</groupId>
         <artifactId>tinkar-data</artifactId>
-        <version>1.7.0-IKDT-700-update-tinkar-data-bom-version-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>plugin</artifactId>
