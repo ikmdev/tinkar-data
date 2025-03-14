@@ -1,4 +1,4 @@
-open module tinkar.starter.data {	
+open module dev.ikm.tinkar {	
 	requires dev.ikm.tinkar.provider.ephemeral;
 	requires dev.ikm.tinkar.reasoner.elkowl;
 	requires org.junit.jupiter.api;
