@@ -45,11 +45,6 @@
             <groupId>dev.ikm.tinkar</groupId>
             <artifactId>executor-provider</artifactId>
         </dependency>
-        
-        <dependency>
-          <groupId>org.checkerframework</groupId>
-    	  <artifactId>checker-qual</artifactId>
-    	</dependency>
     </dependencies>
 
 </project>
