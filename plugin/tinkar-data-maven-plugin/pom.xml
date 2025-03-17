@@ -12,7 +12,6 @@
     </parent>
 
     <artifactId>tinkar-data-maven-plugin</artifactId>
-    
     <packaging>maven-plugin</packaging>
     <name>tinkar-data-maven-plugin</name>
 
