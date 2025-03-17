@@ -16,10 +16,6 @@
     <packaging>maven-plugin</packaging>
     <name>tinkar-data-maven-plugin</name>
 
-    <properties>
-    	<tinkar-core.version>1.91.0-SNAPSHOT</tinkar-core.version>
-    </properties>
-
     <url>http://maven.apache.org</url>
 
     <build>

@@ -11,15 +11,9 @@
         <artifactId>tinkar-data</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
-  
-    <properties>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	<tinkar-core.version>1.91.0-SNAPSHOT</tinkar-core.version>
-    </properties>
 
 	<artifactId>tinkar-starter-data</artifactId>
+	<packaging>pom</packaging>
 	<name>tinkar-starter-data</name>
 
 	<url>http://maven.apache.org</url>

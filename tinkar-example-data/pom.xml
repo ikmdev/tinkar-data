@@ -11,13 +11,6 @@
     </parent>
 
     <artifactId>tinkar-example-data</artifactId>
-
-    <properties>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	<tinkar-core.version>1.91.0-SNAPSHOT</tinkar-core.version>
-    </properties>
     
     <dependencies>
         <dependency>

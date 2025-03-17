@@ -16,11 +16,6 @@
     <modules>
         <module>tinkar-data-maven-plugin</module>
     </modules>
-    
-    <properties>
-    	<tinkar-core.version>1.91.0-SNAPSHOT</tinkar-core.version>
-    </properties>
-
 
     <dependencies>
         <dependency>
