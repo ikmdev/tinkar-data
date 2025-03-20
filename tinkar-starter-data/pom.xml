@@ -17,7 +17,7 @@
 
     <url>http://maven.apache.org</url>
     <build>
-        <pluginManagement>
+        <!--<pluginManagement>-->
         <plugins>
             <plugin>
                 <groupId>dev.ikm.tinkar</groupId>
@@ -60,6 +60,6 @@
                 </executions>
             </plugin>
         </plugins>
-        </pluginManagement>
+        <!--</pluginManagement>-->
     </build>
 </project>
