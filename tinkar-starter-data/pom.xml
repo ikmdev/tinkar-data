@@ -22,7 +22,6 @@
             <plugin>
                 <groupId>dev.ikm.tinkar</groupId>
                 <artifactId>tinkar-data-maven-plugin</artifactId>
-                <version>1.8.0-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>load-data</id>
@@ -39,7 +38,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-artifacts</id>
