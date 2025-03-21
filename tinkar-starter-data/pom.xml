@@ -22,7 +22,7 @@
             <plugin>
                 <groupId>dev.ikm.tinkar</groupId>
                 <artifactId>tinkar-data-maven-plugin</artifactId>
-                <version>1.8.0-SNAPSHOT</version>
+                <!-- <version>1.8.0-SNAPSHOT</version> -->
                 <executions>
                     <execution>
                         <id>load-data</id>
