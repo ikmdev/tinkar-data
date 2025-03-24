@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static dev.ikm.tinkar.terms.TinkarTerm.*;
@@ -42,10 +41,6 @@ public class TinkarStarterData {
 
     private final File exportFile;
     private final File datastore;
-    private static final EntityProxy.Concept MODULE_COORDINATE_NAME =
-            EntityProxy.Concept.make("Module coordinate name (SOLOR)", UUID.fromString("7d5a2f2c-af12-5b50-8202-ec1f7c0ccf38"));
-    private static final EntityProxy.Concept MODULE_COORDINATE_PROPERTIES =
-            EntityProxy.Concept.make("Module coordinate properties (SOLOR)", UUID.fromString("dc5e9ca4-9a99-55fc-87d6-adc02b3af628"));
 
     public TinkarStarterData(String[] args) {
         datastore = new File(args[0]);
@@ -4312,7 +4307,7 @@ public class TinkarStarterData {
                         .identifier(OBJECT_PROPERTIES.asUuidArray()[0].toString()))
                 .attach(new StatedNavigation()
                         .children(ACTION_PROPERTIES, CHRONICLE_PROPERTIES, VERSION_PROPERTIES, IMMUTABLECOORDINATE_PROPERTIES,
-                                LANGUAGE_COORDINATE_PROPERTIES, LOGIC_COORDINATE_PROPERTIES, PATH_COORDINATE_PROPERTIES, MODULE_COORDINATE_PROPERTIES,
+                                LANGUAGE_COORDINATE_PROPERTIES, LOGIC_COORDINATE_PROPERTIES, PATH_COORDINATE_PROPERTIES,
                                 SEMANTIC_PROPERTIES, TREE_AMALGAM_PROPERTIES, CORRELATION_PROPERTIES, TRANSITIVE_PROPERTY,
                                 REFLEXIVE_PROPERTY, ANNOTATION_PROPERTY_SET, DATA_PROPERTY_SET, PROPERTY_SEQUENCE_IMPLICATION)
                         .parents(OBJECT))
@@ -4571,56 +4566,6 @@ public class TinkarStarterData {
                         .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
 
 
-        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MODULE_COORDINATE_NAME))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Module coordinate name (SOLOR)")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
-                        .attach(usDialect()))
-                .attach((Synonym synonym) -> synonym
-                        .text("Module coordinate name")
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
-                        .language(ENGLISH_LANGUAGE)
-                        .attach(usDialect()))
-                .attach((Definition definition) -> definition
-                        .text("Module coordinate name")
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
-                        .language(ENGLISH_LANGUAGE)
-                        .attach(usDialect()))
-                .attach((Identifier identifier) -> identifier
-                        .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
-                        .identifier(MODULE_COORDINATE_NAME.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .parents(MODULE_COORDINATE_PROPERTIES))
-                .attach(new StatedAxiom()
-                        .isA(MODULE_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
-
-        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MODULE_COORDINATE_PROPERTIES))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Module coordinate properties (SOLOR)")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
-                        .attach(usDialect()))
-                .attach((Synonym synonym) -> synonym
-                        .text("Module coordinate properties")
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
-                        .language(ENGLISH_LANGUAGE)
-                        .attach(usDialect()))
-                .attach((Definition definition) -> definition
-                        .text("Coordinate attribute referring to module properties")
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
-                        .language(ENGLISH_LANGUAGE)
-                        .attach(usDialect()))
-                .attach((Identifier identifier) -> identifier
-                        .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
-                        .identifier(MODULE_COORDINATE_PROPERTIES.asUuidArray()[0].toString()))
-                .attach(new StatedNavigation()
-                        .children(MODULE_COORDINATE_NAME, MODULE_ORIGINS)
-                        .parents(OBJECT_PROPERTIES))
-                .attach(new StatedAxiom()
-                        .isA(OBJECT_PROPERTIES)).attach(new TinkarBaseModel());
-
-
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PATH_FOR_PATH_COORDINATE))
                 .attach((FullyQualifiedName fqn) -> fqn
                         .text("Path for path coordinate (SOLOR)")
@@ -4766,9 +4711,9 @@ public class TinkarStarterData {
                         .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
                         .identifier(MODULE_ORIGINS.asUuidArray()[0].toString()))
                 .attach(new StatedNavigation()
-                        .parents(MODULE_COORDINATE_PROPERTIES))
+                        .parents(LOGIC_COORDINATE_PROPERTIES))
                 .attach(new StatedAxiom()
-                        .isA(MODULE_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
+                        .isA(LOGIC_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PATH_ORIGINS_FOR_STAMP_PATH))
                 .attach((FullyQualifiedName fqn) -> fqn
