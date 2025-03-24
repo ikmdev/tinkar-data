@@ -4607,7 +4607,7 @@ public class TinkarStarterData {
                         .language(ENGLISH_LANGUAGE)
                         .attach(usDialect()))
                 .attach((Definition definition) -> definition
-                        .text("JTD - what is a good definition for MODULE_COORDINATE_PROPERTIES")
+                        .text("Coordinate attribute referring to module properties")
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
                         .language(ENGLISH_LANGUAGE)
                         .attach(usDialect()))
