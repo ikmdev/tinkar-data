@@ -4691,6 +4691,30 @@ public class TinkarStarterData {
                         .isA(PATH_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
 
 
+        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(MODULE_ORIGINS))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Module origins (SOLOR)")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .attach(new USDialect().acceptability(PREFERRED)))
+                .attach((Synonym synonym) -> synonym
+                        .text("Module origins")
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(new USDialect().acceptability(PREFERRED)))
+                .attach((Definition definition) -> definition
+                        .text("Module origins")
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
+                        .language(ENGLISH_LANGUAGE)
+                        .attach(new USDialect().acceptability(PREFERRED)))
+                .attach((Identifier identifier) -> identifier
+                        .source(UNIVERSALLY_UNIQUE_IDENTIFIER)
+                        .identifier(MODULE_ORIGINS.asUuidArray()[0].toString()))
+                .attach(new StatedNavigation()
+                        .parents(LOGIC_COORDINATE_PROPERTIES))
+                .attach(new StatedAxiom()
+                        .isA(LOGIC_COORDINATE_PROPERTIES)).attach(new TinkarBaseModel());
+
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(PATH_ORIGINS_FOR_STAMP_PATH))
                 .attach((FullyQualifiedName fqn) -> fqn
                         .text("Path origins for stamp path (SOLOR)")
@@ -8075,6 +8099,27 @@ public class TinkarStarterData {
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
                 .attach((Definition definition) -> definition
                         .text("Pattern of path origins")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach(new TinkarBaseModel());
+
+        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(MODULE_ORIGINS_PATTERN)
+                        .meaning(MODULE_ORIGINS)
+                        .purpose(MODULE_ORIGINS)
+                        .fieldDefinition(
+                                MODULE_ORIGINS,
+                                MODULE_ORIGINS,
+                                COMPONENT_ID_SET_FIELD))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Module origins pattern (SOLOR)")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Synonym synonym) -> synonym
+                        .text("Module origins pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Definition definition) -> definition
+                        .text("Pattern of module origins")
                         .language(ENGLISH_LANGUAGE)
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
                 .attach(new TinkarBaseModel());
