@@ -8,7 +8,7 @@
     <parent>
         <groupId>dev.ikm.tinkar</groupId>
         <artifactId>tinkar-data</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.10.0-IKDT-934-SNAPSHOT</version>
     </parent>
 
     <artifactId>tinkar-starter-data</artifactId>
