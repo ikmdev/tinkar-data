@@ -2831,12 +2831,12 @@ public class TinkarStarterData {
 
         session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(GROUPING))
                 .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Health concept (SOLOR)")
+                        .text("Grouping (SOLOR)")
                         .language(ENGLISH_LANGUAGE)
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
                         .attach(usDialect()))
                 .attach((Synonym synonym) -> synonym
-                        .text("Health concept")
+                        .text("Grouping")
                         .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)
                         .language(ENGLISH_LANGUAGE)
                         .attach(usDialect()))
